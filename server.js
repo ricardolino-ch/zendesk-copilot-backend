@@ -88,14 +88,17 @@ app.post("/copilot", async (req, res) => {
 
     if (action === "summarize_ticket") {
       prompt = `
-You are a support copilot for Zendesk.
+You are a Zendesk support copilot.
 
-Create a concise ticket summary in German.
+Create a concise summary in German.
 Use short bullet points only.
 Do not include any greeting.
 Do not include any closing.
 Do not invent facts.
-Focus on the customer's issue, request, relevant details, and desired outcome.
+Focus on:
+1. Customer issue
+2. Relevant details
+3. What the customer wants
 
 Ticket subject:
 ${ticketSubject}
@@ -105,24 +108,23 @@ ${latestComment}
 `;
     } else if (action === "suggest_reply") {
       prompt = `
-You are a support copilot for Zendesk.
+You are a Zendesk support copilot.
 
 Write a professional support reply in ${languageName}.
-Use exactly this greeting at the beginning:
 
+Use exactly this greeting at the beginning:
 ${greeting}
 
 Use exactly this closing at the end:
-
 ${closing}
 
 Rules:
-1. Do not add any agent name.
-2. Do not add any extra signature.
-3. Keep the answer concise, polite, and helpful.
-4. Do not invent facts.
-5. If details are missing, phrase the reply carefully.
-6. Return only the final customer facing reply.
+1. No agent name
+2. No extra signature
+3. Concise, polite, helpful
+4. Do not invent facts
+5. If information is missing, phrase carefully
+6. Return only the final reply
 
 Ticket subject:
 ${ticketSubject}
@@ -135,69 +137,30 @@ ${latestComment}
 `;
     } else if (action === "improve_text") {
       prompt = `
-You are a support copilot for Zendesk.
+You are a Zendesk support copilot.
 
-Improve the following support draft.
-Detect the language of the provided text.
-Keep the same language as the original text.
-Return a polished, professional customer facing version.
-
-If the text is or should be a full support reply, enforce this exact language specific structure:
-1. Use the correct standard greeting with the customer's name.
-2. Write a concise and professional body.
-3. Use the correct language specific closing.
-4. Do not add any agent name.
-5. Do not add any extra signature.
-
-Customer name:
-${requesterName}
-
-Available standard greetings and closings:
-German greeting:
-${getGreeting("de", requesterName)}
-German closing:
-${getClosing("de")}
-
-French greeting:
-${getGreeting("fr", requesterName)}
-French closing:
-${getClosing("fr")}
-
-Italian greeting:
-${getGreeting("it", requesterName)}
-Italian closing:
-${getClosing("it")}
-
-English greeting:
-${getGreeting("en", requesterName)}
-English closing:
-${getClosing("en")}
+Improve the following text.
+Keep the original language.
+Do not translate it.
+Do not add a greeting.
+Do not add a closing.
+Do not add a signature.
+Make it sound professional, natural and clear.
+Return only the improved text.
 
 Original text:
 ${text}
 `;
     } else if (action === "translate_text") {
       prompt = `
-You are a support copilot for Zendesk.
+You are a Zendesk support copilot.
 
-Translate the following support draft into ${languageName}.
-Return a polished customer facing reply.
-
-Use exactly this greeting at the beginning:
-${greeting}
-
-Use exactly this closing at the end:
-${closing}
-
-Rules:
-1. The main body must preserve the meaning of the original text.
-2. Make it sound natural and professional.
-3. Do not add any agent name.
-4. Do not add any extra signature.
-5. Return only the final translated reply.
-
-Customer name:
-${requesterName}
+Translate the following text into ${languageName}.
+Keep the meaning exactly.
+Do not add a greeting.
+Do not add a closing.
+Do not add a signature.
+Return only the translated text.
 
 Original text:
 ${text}
