@@ -14,6 +14,11 @@ const client = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
 });
 
+let macroCache = {
+  expiresAt: 0,
+  data: []
+};
+
 function getLanguageName(code) {
   const map = {
     de: "German",
@@ -65,6 +70,173 @@ async function runPrompt(prompt) {
   return response.output_text || "";
 }
 
+function getZendeskAuthHeader() {
+  const email = process.env.ZENDESK_EMAIL;
+  const token = process.env.ZENDESK_API_TOKEN;
+
+  if (!email || !token) {
+    throw new Error("ZENDESK_EMAIL oder ZENDESK_API_TOKEN fehlt");
+  }
+
+  const raw = `${email}/token:${token}`;
+  return `Basic ${Buffer.from(raw).toString("base64")}`;
+}
+
+async function fetchZendeskMacros() {
+  const subdomain = process.env.ZENDESK_SUBDOMAIN;
+
+  if (!subdomain) {
+    throw new Error("ZENDESK_SUBDOMAIN fehlt");
+  }
+
+  if (Date.now() < macroCache.expiresAt && Array.isArray(macroCache.data) && macroCache.data.length) {
+    return macroCache.data;
+  }
+
+  const url = `https://${subdomain}.zendesk.com/api/v2/macros.json?active=true`;
+
+  const response = await fetch(url, {
+    method: "GET",
+    headers: {
+      "Authorization": getZendeskAuthHeader(),
+      "Content-Type": "application/json"
+    }
+  });
+
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(`Zendesk macros request failed: ${response.status} ${text}`);
+  }
+
+  const json = await response.json();
+  const macros = Array.isArray(json.macros) ? json.macros : [];
+
+  const normalized = macros.map((macro) => {
+    const actions = Array.isArray(macro.actions) ? macro.actions : [];
+
+    const commentHtmlAction = actions.find((a) => a.field === "comment_value_html");
+    const commentTextAction = actions.find((a) => a.field === "comment_value");
+    const publicAction = actions.find((a) => a.field === "comment_mode_is_public");
+
+    let preview = "";
+
+    if (commentHtmlAction && typeof commentHtmlAction.value === "string") {
+      preview = commentHtmlAction.value
+        .replace(/<br\s*\/?>/gi, "\n")
+        .replace(/<\/p>/gi, "\n\n")
+        .replace(/<[^>]+>/g, "")
+        .trim();
+    } else if (commentTextAction) {
+      if (typeof commentTextAction.value === "string") {
+        preview = commentTextAction.value.trim();
+      } else if (Array.isArray(commentTextAction.value)) {
+        preview = String(commentTextAction.value[1] || "").trim();
+      }
+    }
+
+    return {
+      id: macro.id,
+      title: macro.title || "",
+      active: macro.active !== false,
+      restriction: macro.restriction || null,
+      commentIsPublic: publicAction ? Boolean(publicAction.value) : true,
+      preview,
+      actionsCount: actions.length
+    };
+  });
+
+  macroCache = {
+    expiresAt: Date.now() + 10 * 60 * 1000,
+    data: normalized
+  };
+
+  return normalized;
+}
+
+async function suggestMacrosForTicket({ ticketSubject = "", latestComment = "" }) {
+  const macros = await fetchZendeskMacros();
+
+  const candidates = macros
+    .filter((m) => m.active)
+    .filter((m) => m.preview && m.preview.trim())
+    .slice(0, 200);
+
+  if (!candidates.length) {
+    return [];
+  }
+
+  const compactList = candidates.map((m) => ({
+    id: m.id,
+    title: m.title,
+    preview: m.preview.slice(0, 1200),
+    commentIsPublic: m.commentIsPublic
+  }));
+
+  const prompt = `
+You are a Zendesk macro copilot.
+
+Task:
+Select the 3 macros that best match the ticket.
+
+Rules:
+1. Use only the macros provided below.
+2. Do not invent macro ids.
+3. Prefer macros whose comment preview clearly matches the ticket issue.
+4. Return valid JSON only.
+5. Use this exact shape:
+{
+  "suggestions": [
+    {
+      "id": 123,
+      "reason": "short reason"
+    }
+  ]
+}
+
+Ticket subject:
+${ticketSubject}
+
+Latest customer comment:
+${latestComment}
+
+Available macros:
+${JSON.stringify(compactList)}
+`;
+
+  const response = await client.responses.create({
+    model: "gpt-5.4",
+    input: prompt
+  });
+
+  const raw = response.output_text || "{}";
+
+  let parsed;
+  try {
+    parsed = JSON.parse(raw);
+  } catch (error) {
+    throw new Error("Macro ranking konnte nicht als JSON gelesen werden");
+  }
+
+  const picked = Array.isArray(parsed.suggestions) ? parsed.suggestions : [];
+
+  const merged = picked
+    .map((item) => {
+      const macro = candidates.find((m) => String(m.id) === String(item.id));
+      if (!macro) return null;
+
+      return {
+        id: macro.id,
+        title: macro.title,
+        preview: macro.preview,
+        reason: item.reason || "Passend zum Ticketinhalt"
+      };
+    })
+    .filter(Boolean)
+    .slice(0, 3);
+
+  return merged;
+}
+
 app.get("/health", (req, res) => {
   res.json({ ok: true });
 });
@@ -85,6 +257,15 @@ app.post("/copilot", async (req, res) => {
     const languageName = getLanguageName(targetLanguage);
 
     let prompt = "";
+
+    if (action === "suggest_macros") {
+      const suggestions = await suggestMacrosForTicket({
+        ticketSubject,
+        latestComment
+      });
+
+      return res.json({ suggestions });
+    }
 
     if (action === "summarize_ticket") {
       prompt = `
