@@ -315,13 +315,38 @@ IMPORTANT:
 Focus on what matters operationally.
 If there are multiple accounts, emails, phone numbers or identities, explain the relationship clearly.
 If a field implies something important, state the implication.
-Example:
-If a field says the phone number is already used in another account, explain that the verification issue is caused by a phone number already linked to a different account.
 If there is an attachment or ID hint, mention that it is available.
 If the user clearly wants to keep one account and delete another, state that clearly.
 The "Vorschlag nächster Schritt" must be an internal handling suggestion, not a customer message.
 
 ${promptContext}
+`;
+    } else if (action === "reply_from_summary") {
+      prompt = `
+You are a Zendesk support agent for Ricardo.
+
+Based on the following INTERNAL SUMMARY, write a professional customer reply in German.
+
+Rules:
+Use the correct greeting and closing.
+Do not mention internal reasoning.
+Do not mention "Zusammenfassung" or "Vorschlag nächster Schritt".
+Be clear, friendly and solution-oriented.
+If action is required from the customer, explain it clearly.
+If the next step is internal only, do not expose unnecessary internal process wording.
+Return only the final customer message.
+
+Customer name:
+${requesterName}
+
+Use exactly this greeting:
+${getGreeting("de", requesterName)}
+
+Use exactly this closing:
+${getClosing("de")}
+
+Internal summary:
+${text}
 `;
     } else if (action === "improve_text") {
       prompt = `
