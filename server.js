@@ -327,6 +327,30 @@ Gebühren
 
 ${promptContext}
 `;
+    } else if (action === "translate_summary") {
+      prompt = `
+You are a Zendesk support copilot.
+
+Translate the following INTERNAL AGENT SUMMARY into ${languageName}.
+
+Rules:
+Do not turn it into a customer reply.
+Do not add greeting.
+Do not add closing.
+Do not add signature.
+Keep the existing structure and meaning.
+Keep it concise and internal.
+Use Ricardo wording where appropriate:
+Benutzerkonto
+Benutzername
+Artikelnummer
+Gebühren
+
+Return only the translated summary.
+
+Text:
+${text}
+`;
     } else if (action === "reply_from_summary") {
       prompt = `
 You are a Zendesk support agent for Ricardo.
