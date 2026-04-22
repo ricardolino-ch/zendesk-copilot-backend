@@ -139,14 +139,46 @@ ${latestComment}
       prompt = `
 You are a Zendesk support copilot.
 
-Improve the following text.
-Keep the original language.
-Do not translate it.
-Do not add a greeting.
-Do not add a closing.
-Do not add a signature.
-Make it sound professional, natural and clear.
-Return only the improved text.
+Your task is to turn the following draft into a complete customer facing support reply.
+
+Instructions:
+1. Detect the language of the original text.
+2. Keep the same language.
+3. Rewrite the text so it sounds professional, clear, polite and natural.
+4. Return a complete reply, not just a corrected sentence fragment.
+5. Use exactly the correct standard greeting and closing for the detected language.
+6. Do not add any agent name.
+7. Do not add any extra signature.
+8. Return only the final customer reply.
+
+Customer name:
+${requesterName}
+
+Use these exact templates:
+
+German greeting:
+${getGreeting("de", requesterName)}
+
+German closing:
+${getClosing("de")}
+
+French greeting:
+${getGreeting("fr", requesterName)}
+
+French closing:
+${getClosing("fr")}
+
+Italian greeting:
+${getGreeting("it", requesterName)}
+
+Italian closing:
+${getClosing("it")}
+
+English greeting:
+${getGreeting("en", requesterName)}
+
+English closing:
+${getClosing("en")}
 
 Original text:
 ${text}
@@ -157,10 +189,23 @@ You are a Zendesk support copilot.
 
 Translate the following text into ${languageName}.
 Keep the meaning exactly.
-Do not add a greeting.
-Do not add a closing.
-Do not add a signature.
-Return only the translated text.
+Return a full customer ready reply.
+
+Use exactly this greeting at the beginning:
+${greeting}
+
+Use exactly this closing at the end:
+${closing}
+
+Rules:
+1. Preserve meaning
+2. Sound natural and professional
+3. No agent name
+4. No extra signature
+5. Return only the final reply
+
+Customer name:
+${requesterName}
 
 Original text:
 ${text}
