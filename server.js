@@ -129,7 +129,7 @@ async function fetchTicketFields() {
   }
 
   ticketFieldCache = {
-    expiresAt: Date.now() + 30 * 60 * 1000,
+    expiresAt: Date.now() + 24 * 60 * 60 * 1000,
     data: allFields
   };
 
@@ -167,12 +167,57 @@ function mapTicketFieldValue(fieldDef, rawValue) {
   return String(rawValue);
 }
 
+function shortenText(text, maxLength = 1200) {
+  const value = String(text || "").trim();
+  if (!value) return "";
+  if (value.length <= maxLength) return value;
+  return value.slice(0, maxLength) + " ...";
+}
+
+function isRelevantFieldName(name) {
+  const value = String(name || "").toLowerCase();
+
+  const preferredTerms = [
+    "telefon",
+    "phone",
+    "mobile",
+    "handy",
+    "email",
+    "e-mail",
+    "mail",
+    "konto",
+    "account",
+    "benutzer",
+    "user",
+    "username",
+    "id",
+    "ident",
+    "verifiz",
+    "verify",
+    "sms",
+    "nummer",
+    "number",
+    "mitglied",
+    "name",
+    "adresse",
+    "address",
+    "anhang",
+    "attachment",
+    "dokument",
+    "document"
+  ];
+
+  return preferredTerms.some((term) => value.includes(term));
+}
+
 async function buildTicketContext(ticketId) {
   const baseUrl = getZendeskBaseUrl();
 
-  const ticketJson = await zendeskGet(`${baseUrl}/tickets/${ticketId}.json`);
-  const commentsJson = await zendeskGet(`${baseUrl}/tickets/${ticketId}/comments.json?sort=-created_at`);
-  const fieldDefs = await fetchTicketFields();
+  const [ticketJson, commentsJson, fieldDefs] = await Promise.all([
+    zendeskGet(`${baseUrl}/tickets/${ticketId}.json`),
+    zendeskGet(`${baseUrl}/tickets/${ticketId}/comments.json?sort=-created_at`),
+    fetchTicketFields()
+  ]);
 
   const ticket = ticketJson.ticket || {};
   const comments = Array.isArray(commentsJson.comments) ? commentsJson.comments : [];
@@ -190,13 +235,19 @@ async function buildTicketContext(ticketId) {
         value: mappedValue
       };
     })
-    .filter((item) => item.value);
+    .filter((item) => item.value)
+    .sort((a, b) => {
+      const aRelevant = isRelevantFieldName(a.name) ? 1 : 0;
+      const bRelevant = isRelevantFieldName(b.name) ? 1 : 0;
+      return bRelevant - aRelevant;
+    })
+    .slice(0, 12);
 
   const latestComments = comments
-    .slice(0, 10)
+    .slice(0, 5)
     .reverse()
     .map((comment, index) => {
-      const body = comment.plain_body || comment.body || "";
+      const body = shortenText(comment.plain_body || comment.body || "", 900);
       const visibility = comment.public ? "public" : "private";
       return `Comment ${index + 1} (${visibility}):\n${body}`;
     })
@@ -204,12 +255,12 @@ async function buildTicketContext(ticketId) {
 
   return {
     id: ticket.id || ticketId,
-    subject: ticket.subject || "",
-    description: ticket.description || "",
+    subject: shortenText(ticket.subject || "", 300),
+    description: shortenText(ticket.description || "", 1500),
     status: ticket.status || "",
     priority: ticket.priority || "",
     type: ticket.type || "",
-    tags: Array.isArray(ticket.tags) ? ticket.tags : [],
+    tags: Array.isArray(ticket.tags) ? ticket.tags.slice(0, 12) : [],
     customFields: mappedFields,
     commentsText: latestComments
   };
@@ -217,7 +268,9 @@ async function buildTicketContext(ticketId) {
 
 function formatTicketContextForPrompt(ticketContext) {
   const fieldsText = ticketContext.customFields.length
-    ? ticketContext.customFields.map((field) => `${field.name}: ${field.value}`).join("\n")
+    ? ticketContext.customFields
+        .map((field) => `${field.name}: ${shortenText(field.value, 300)}`)
+        .join("\n")
     : "No relevant custom fields set.";
 
   const tagsText = ticketContext.tags.length ? ticketContext.tags.join(", ") : "No tags.";
