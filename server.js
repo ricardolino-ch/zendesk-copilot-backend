@@ -82,7 +82,7 @@ function getZendeskAuthHeader() {
   return `Basic ${Buffer.from(raw).toString("base64")}`;
 }
 
-async function fetchZendeskMacros() {
+async function fetchAllZendeskMacros() {
   const subdomain = process.env.ZENDESK_SUBDOMAIN;
 
   if (!subdomain) {
@@ -93,25 +93,36 @@ async function fetchZendeskMacros() {
     return macroCache.data;
   }
 
-  const url = `https://${subdomain}.zendesk.com/api/v2/macros.json?active=true`;
+  const headers = {
+    "Authorization": getZendeskAuthHeader(),
+    "Content-Type": "application/json"
+  };
 
-  const response = await fetch(url, {
-    method: "GET",
-    headers: {
-      "Authorization": getZendeskAuthHeader(),
-      "Content-Type": "application/json"
+  let url = `https://${subdomain}.zendesk.com/api/v2/macros.json?active=true`;
+  let allMacros = [];
+  let pageCount = 0;
+  const maxPages = 100;
+
+  while (url && pageCount < maxPages) {
+    const response = await fetch(url, {
+      method: "GET",
+      headers
+    });
+
+    if (!response.ok) {
+      const text = await response.text();
+      throw new Error(`Zendesk macros request failed: ${response.status} ${text}`);
     }
-  });
 
-  if (!response.ok) {
-    const text = await response.text();
-    throw new Error(`Zendesk macros request failed: ${response.status} ${text}`);
+    const json = await response.json();
+    const macros = Array.isArray(json.macros) ? json.macros : [];
+    allMacros = allMacros.concat(macros);
+
+    url = json.next_page || null;
+    pageCount += 1;
   }
 
-  const json = await response.json();
-  const macros = Array.isArray(json.macros) ? json.macros : [];
-
-  const normalized = macros.map((macro) => {
+  const normalized = allMacros.map((macro) => {
     const actions = Array.isArray(macro.actions) ? macro.actions : [];
 
     const commentHtmlAction = actions.find((a) => a.field === "comment_value_html");
@@ -154,12 +165,12 @@ async function fetchZendeskMacros() {
 }
 
 async function suggestMacrosForTicket({ ticketSubject = "", latestComment = "" }) {
-  const macros = await fetchZendeskMacros();
+  const macros = await fetchAllZendeskMacros();
 
   const candidates = macros
     .filter((m) => m.active)
     .filter((m) => m.preview && m.preview.trim())
-    .slice(0, 200);
+    .slice(0, 500);
 
   if (!candidates.length) {
     return [];
