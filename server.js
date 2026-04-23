@@ -14,11 +14,6 @@ const client = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
 });
 
-let ticketFieldCache = {
-  expiresAt: 0,
-  data: []
-};
-
 function getLanguageName(code) {
   const map = {
     de: "German",
@@ -109,64 +104,6 @@ async function zendeskGet(url) {
   return response.json();
 }
 
-async function fetchTicketFields() {
-  if (Date.now() < ticketFieldCache.expiresAt && ticketFieldCache.data.length) {
-    return ticketFieldCache.data;
-  }
-
-  const baseUrl = getZendeskBaseUrl();
-  let url = `${baseUrl}/ticket_fields.json`;
-  let allFields = [];
-  let pageCount = 0;
-  const maxPages = 50;
-
-  while (url && pageCount < maxPages) {
-    const json = await zendeskGet(url);
-    const fields = Array.isArray(json.ticket_fields) ? json.ticket_fields : [];
-    allFields = allFields.concat(fields);
-    url = json.next_page || null;
-    pageCount += 1;
-  }
-
-  ticketFieldCache = {
-    expiresAt: Date.now() + 24 * 60 * 60 * 1000,
-    data: allFields
-  };
-
-  return allFields;
-}
-
-function mapTicketFieldValue(fieldDef, rawValue) {
-  if (rawValue === null || rawValue === undefined || rawValue === "") {
-    return "";
-  }
-
-  const type = fieldDef.type || "";
-
-  if ((type === "tagger" || type === "multiselect") && Array.isArray(fieldDef.custom_field_options)) {
-    if (type === "multiselect" && Array.isArray(rawValue)) {
-      const labels = rawValue.map((value) => {
-        const option = fieldDef.custom_field_options.find((opt) => opt.value === value);
-        return option ? option.name : String(value);
-      });
-      return labels.join(", ");
-    }
-
-    const option = fieldDef.custom_field_options.find((opt) => opt.value === rawValue);
-    return option ? option.name : String(rawValue);
-  }
-
-  if (Array.isArray(rawValue)) {
-    return rawValue.join(", ");
-  }
-
-  if (typeof rawValue === "object") {
-    return JSON.stringify(rawValue);
-  }
-
-  return String(rawValue);
-}
-
 function shortenText(text, maxLength = 1200) {
   const value = String(text || "").trim();
   if (!value) return "";
@@ -174,80 +111,22 @@ function shortenText(text, maxLength = 1200) {
   return value.slice(0, maxLength) + " ...";
 }
 
-function isRelevantFieldName(name) {
-  const value = String(name || "").toLowerCase();
-
-  const preferredTerms = [
-    "telefon",
-    "phone",
-    "mobile",
-    "handy",
-    "email",
-    "e-mail",
-    "mail",
-    "konto",
-    "account",
-    "benutzer",
-    "user",
-    "username",
-    "id",
-    "ident",
-    "verifiz",
-    "verify",
-    "sms",
-    "nummer",
-    "number",
-    "mitglied",
-    "name",
-    "adresse",
-    "address",
-    "anhang",
-    "attachment",
-    "dokument",
-    "document"
-  ];
-
-  return preferredTerms.some((term) => value.includes(term));
-}
-
 async function buildTicketContext(ticketId) {
   const baseUrl = getZendeskBaseUrl();
 
-  const [ticketJson, commentsJson, fieldDefs] = await Promise.all([
+  const [ticketJson, commentsJson] = await Promise.all([
     zendeskGet(`${baseUrl}/tickets/${ticketId}.json`),
-    zendeskGet(`${baseUrl}/tickets/${ticketId}/comments.json?sort=-created_at`),
-    fetchTicketFields()
+    zendeskGet(`${baseUrl}/tickets/${ticketId}/comments.json?sort=-created_at`)
   ]);
 
   const ticket = ticketJson.ticket || {};
   const comments = Array.isArray(commentsJson.comments) ? commentsJson.comments : [];
 
-  const customFields = Array.isArray(ticket.custom_fields) ? ticket.custom_fields : [];
-  const mappedFields = customFields
-    .map((item) => {
-      const def = fieldDefs.find((field) => String(field.id) === String(item.id));
-      const fieldName = def ? def.title : `Field ${item.id}`;
-      const mappedValue = def ? mapTicketFieldValue(def, item.value) : String(item.value || "");
-
-      return {
-        id: item.id,
-        name: fieldName,
-        value: mappedValue
-      };
-    })
-    .filter((item) => item.value)
-    .sort((a, b) => {
-      const aRelevant = isRelevantFieldName(a.name) ? 1 : 0;
-      const bRelevant = isRelevantFieldName(b.name) ? 1 : 0;
-      return bRelevant - aRelevant;
-    })
-    .slice(0, 12);
-
   const latestComments = comments
-    .slice(0, 5)
+    .slice(0, 3)
     .reverse()
     .map((comment, index) => {
-      const body = shortenText(comment.plain_body || comment.body || "", 900);
+      const body = shortenText(comment.plain_body || comment.body || "", 1200);
       const visibility = comment.public ? "public" : "private";
       return `Comment ${index + 1} (${visibility}):\n${body}`;
     })
@@ -256,46 +135,18 @@ async function buildTicketContext(ticketId) {
   return {
     id: ticket.id || ticketId,
     subject: shortenText(ticket.subject || "", 300),
-    description: shortenText(ticket.description || "", 1500),
-    status: ticket.status || "",
-    priority: ticket.priority || "",
-    type: ticket.type || "",
-    tags: Array.isArray(ticket.tags) ? ticket.tags.slice(0, 12) : [],
-    customFields: mappedFields,
+    description: shortenText(ticket.description || "", 1800),
     commentsText: latestComments
   };
 }
 
 function formatTicketContextForPrompt(ticketContext) {
-  const fieldsText = ticketContext.customFields.length
-    ? ticketContext.customFields
-        .map((field) => `${field.name}: ${shortenText(field.value, 300)}`)
-        .join("\n")
-    : "No relevant custom fields set.";
-
-  const tagsText = ticketContext.tags.length ? ticketContext.tags.join(", ") : "No tags.";
-
   return `
 Ticket subject:
 ${ticketContext.subject || ""}
 
 Ticket description:
 ${ticketContext.description || ""}
-
-Ticket status:
-${ticketContext.status || ""}
-
-Ticket priority:
-${ticketContext.priority || ""}
-
-Ticket type:
-${ticketContext.type || ""}
-
-Ticket tags:
-${tagsText}
-
-Custom fields:
-${fieldsText}
 
 Recent ticket comments:
 ${ticketContext.commentsText || "No comments found."}
@@ -336,8 +187,7 @@ app.post("/copilot", async (req, res) => {
       prompt = `
 You are a Zendesk support copilot for Ricardo.
 
-Your task is NOT to dump ticket data.
-Your task is to UNDERSTAND the case and write a short internal agent summary.
+Your task is to write a FAST, SHORT and USEFUL internal agent summary.
 
 Write the output in ${languageName}.
 
@@ -346,15 +196,14 @@ Do not write a customer reply.
 Do not include greeting.
 Do not include closing.
 Do not include signature.
-Do not simply list raw fields.
-Do not copy ticket metadata unless it is relevant.
+Do not dump raw data.
 Do not invent facts.
-Interpret the information and explain what it means for the case.
+Focus only on the important text context from the ticket.
 
 Use this exact structure:
 
 Zusammenfassung:
-<2 to 4 short sentences that explain the case clearly for an agent>
+<2 to 3 short sentences>
 
 Wichtige Punkte:
 1. ...
@@ -362,15 +211,13 @@ Wichtige Punkte:
 3. ...
 
 Vorschlag nächster Schritt:
-<1 to 3 short sentences with a practical internal recommendation for the agent>
+<1 to 2 short sentences>
 
 IMPORTANT:
-Focus on what matters operationally.
-If there are multiple accounts, emails, phone numbers or identities, explain the relationship clearly.
-If a field implies something important, state the implication.
-If there is an attachment or ID hint, mention that it is available.
-If the user clearly wants to keep one account and delete another, state that clearly.
-The "Vorschlag nächster Schritt" must be an internal handling suggestion, not a customer message.
+Only mention what is operationally important.
+If there are multiple Benutzerkonten, E-Mail-Adressen, Telefonnummern or identities, explain the relationship clearly.
+If an attachment or ID is mentioned in the text, mention it.
+Keep it compact and useful.
 
 Use Ricardo wording where appropriate:
 Benutzerkonto
