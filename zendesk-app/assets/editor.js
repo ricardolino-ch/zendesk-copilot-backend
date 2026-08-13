@@ -1,7 +1,24 @@
 (function () {
   const client = ZAFClient.init();
   const button = document.getElementById("open-copilot");
+  let launcherCollapsed = false;
   client.invoke("resize", { width: "190px", height: "46px" }).catch(() => {});
+
+  // Restore the launcher after the modal closes so it can be opened again.
+  setInterval(async () => {
+    if (!launcherCollapsed) return;
+    try {
+      const data = await client.get("instances");
+      const hasModal = Object.values(data.instances || {}).some((instance) => instance.location === "modal");
+      if (!hasModal) {
+        launcherCollapsed = false;
+        document.body.style.display = "block";
+        button.style.visibility = "visible";
+        button.style.pointerEvents = "auto";
+        await client.invoke("resize", { width: "190px", height: "46px" });
+      }
+    } catch (error) { /* Zendesk may briefly reject instance queries during teardown. */ }
+  }, 700);
 
   async function ticketContext() {
     const data = await client.get(["ticket.id", "ticket.subject", "ticket.requester.name"]);
@@ -17,6 +34,7 @@
       button.style.visibility = "hidden";
       button.style.pointerEvents = "none";
       document.body.style.display = "none";
+      launcherCollapsed = true;
       // Collapse the launcher iframe itself; hiding its body alone leaves a blank card.
       await client.invoke("resize", { width: "1px", height: "1px" });
       const encoded = encodeURIComponent(JSON.stringify(context));
