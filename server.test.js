@@ -16,3 +16,9 @@ test("summary prompt enforces requested language and compact output", () => {
   assert.match(prompt, /MUST be English/);
   assert.match(prompt, /2–4 bullet points/);
 });
+
+test("reply prompt uses the selected language", () => {
+  const prompt = promptFor({ action: "reply_from_summary", targetLanguage: "fr", text: "Résumé" });
+  assert.match(prompt, /entirely in French/);
+  assert.match(prompt, /Bonjour/);
+});
