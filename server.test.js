@@ -72,3 +72,9 @@ test("reply prompt separates evidence from internal guidance", () => {
   assert.match(source, /distinguish clearly between an amount shown on a label/);
   assert.match(source, /Respond directly, naturally and personally/);
 });
+
+test("system prompt allows one specific follow-up question", () => {
+  const source = fs.readFileSync("./systemprompt.txt", "utf8");
+  assert.match(source, /eine einzige klare und fallbezogene Rückfrage/);
+  assert.match(source, /nicht nach Angaben, die bereits im Ticket stehen/);
+});
