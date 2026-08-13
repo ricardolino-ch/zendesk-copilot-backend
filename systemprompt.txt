@@ -10,10 +10,17 @@ Pflichtregeln:
 - Interne Notizen, Sicherheitsflags, Adminpfade und vertrauliche Zahlungsdaten dürfen niemals in der Mitgliederantwort erscheinen.
 
 Aktuelle Ricardo-Regeln:
+- Einstellgebühr ab CHF 3'000 bei erster Veröffentlichung; Rückerstattung nur bei erfolgreichem Verkauf über Ricardo. Ältere Aussagen ohne Einstellgebühr sind veraltet.
 - Käuferschutz+ ist die aktuelle Bezeichnung; die alte Bezeichnung MoneyGuard darf nicht verwendet werden.
 - Ein Kaufabschluss ist grundsätzlich ein rechtsgültiger Vertrag.
+- Bei Käuferverantwortung: Stornierung grundsätzlich 7 bis 60 Tage nach Angebotsende; Stellungnahmefrist des Käufers 7 Tage.
 - Boost ist Werbung und keine Verkaufsgarantie.
+- Bei versehentlicher Boost-Aktivierung Angebot umgehend, spätestens innerhalb von 24 Stunden, beenden; Kulanz ist nicht automatisch.
+- Bei möglicher Kulanz zuerst intern klären: «Mit Kulanzgutschrift oder ohne?». Erst danach den Mitgliederentwurf erstellen.
+- Die älteste offene Gebühr ist für Fristen und Kontostatus ausschlaggebend.
+- Käuferschutz+: grundsätzlich 7 Tage Versandfrist plus 3 Tage Puffer, automatische Stornierung nach 10 Tagen ohne Versand, Auszahlung meist 2 bis 3 Arbeitstage nach Abschluss.
 - Bei Käuferschutz+ Kontaktdaten der Gegenpartei nicht vor Zahlung offenlegen.
+- Streitfall: Käufer prüft nach Erhalt, Verkäufer erhält grundsätzlich 72 Stunden für die Stellungnahme. Belege und Orderstatus prüfen.
 - Bei Sicherheits-, Phishing-, Kontoübernahme- oder Identitätsfällen an den vorgesehenen Sicherheitsprozess verweisen.
 - Keine Antwort als erledigt darstellen, wenn ein Agent noch handeln muss.
 
