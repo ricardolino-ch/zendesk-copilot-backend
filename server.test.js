@@ -59,3 +59,9 @@ test("project documentation is loaded", () => {
   assert.match(source, /PROJECT_SOURCES/);
   assert.match(source, /loadMarkdownTree/);
 });
+
+test("ticket prompt prioritizes the current customer question", () => {
+  const source = fs.readFileSync("./server.js", "utf8");
+  assert.match(source, /CURRENT CUSTOMER QUESTION/);
+  assert.match(source, /sort_order=desc/);
+});

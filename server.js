@@ -127,19 +127,22 @@ async function buildTicketContext(ticketId) {
   const id = requireTicketId(ticketId);
   const [ticketJson, commentsJson] = await Promise.all([
     zendeskGet(`/tickets/${id}.json`),
-    zendeskGet(`/tickets/${id}/comments.json?sort=-created_at`)
+    zendeskGet(`/tickets/${id}/comments.json?sort_order=desc&per_page=100`)
   ]);
   const ticket = ticketJson.ticket || {};
   const comments = Array.isArray(commentsJson.comments) ? commentsJson.comments : [];
+  const publicComments = comments.filter((comment) => comment.public !== false);
+  const latestPublicComment = publicComments[0] || comments[0] || null;
   return {
     subject: shortenText(ticket.subject, 300),
     description: shortenText(ticket.description, 1800),
-    comments: comments.slice(0, 3).reverse().map((comment) => shortenText(comment.plain_body || comment.body, 1200)).filter(Boolean)
+    latestCustomerQuestion: latestPublicComment ? shortenText(latestPublicComment.plain_body || latestPublicComment.body, 2500) : "",
+    comments: comments.slice(0, 20).reverse().map((comment) => shortenText(comment.plain_body || comment.body, 1500)).filter(Boolean)
   };
 }
 
 function ticketPrompt(context) {
-  return `Subject:\n${context.subject || "—"}\n\nDescription:\n${context.description || "—"}\n\nLatest comments:\n${context.comments.join("\n\n") || "No comments found."}`;
+  return `Subject:\n${context.subject || "—"}\n\nOriginal description (background only):\n${context.description || "—"}\n\nCURRENT CUSTOMER QUESTION (answer this first):\n${context.latestCustomerQuestion || "No current customer question found."}\n\nConversation comments (background):\n${context.comments.join("\n\n") || "No comments found."}`;
 }
 
 function promptFor({ action, targetLanguage, text, agentContext, requesterName, ticketContext }) {
@@ -148,7 +151,7 @@ function promptFor({ action, targetLanguage, text, agentContext, requesterName, 
   const templates = `German greeting: ${getGreeting("de", requesterName)}\nGerman closing: ${getFullClosing("de")}\nFrench greeting: ${getGreeting("fr", requesterName)}\nFrench closing: ${getFullClosing("fr")}\nItalian greeting: ${getGreeting("it", requesterName)}\nItalian closing: ${getFullClosing("it")}\nEnglish greeting: ${getGreeting("en", requesterName)}\nEnglish closing: ${getFullClosing("en")}`;
   if (action === "summarize_ticket") return `You are a Ricardo Zendesk support assistant. Create a concise internal summary in ${language}. The output language MUST be ${language}; translate extracted facts where needed. Return only 2–4 bullet points, each one sentence at most. Include the issue, essential data and the customer’s request. No greeting, closing, heading or invented information.\n\nTicket:\n${ticketPrompt(ticketContext)}${internalContext}`;
   if (action === "translate_summary") return `Translate this internal summary into ${language}. Preserve its bullet structure and meaning. Do not expand it or turn it into a customer response. Return only the translation.\n\nText:\n${text}`;
-  if (action === "reply_from_summary") return `You are a Ricardo support agent. Write a short, clear, friendly customer reply in ${language} from the provided ticket context or internal summary. The reply MUST be entirely in ${language}; do not default to German. Answer the customer's actual questions, do not expose internal wording and do not invent facts. Use exactly this greeting:\n${getGreeting(targetLanguage, requesterName)}\n\nUse exactly this closing, including the sentence before the sign-off:\n${getFullClosing(targetLanguage)}\n\nSource:\n${text || ticketPrompt(ticketContext)}${internalContext}`;
+  if (action === "reply_from_summary") return `You are a Ricardo support agent. Write a short, clear, friendly customer reply in ${language}. First answer the CURRENT CUSTOMER QUESTION. The original description and older comments are background only and must not replace the current question. The reply MUST be entirely in ${language}; do not default to German. Do not expose internal wording and do not invent facts. If the requested action is not possible, explain that clearly and state the correct next step. Use exactly this greeting:\n${getGreeting(targetLanguage, requesterName)}\n\nUse exactly this closing, including the sentence before the sign-off:\n${getFullClosing(targetLanguage)}\n\nSource:\n${text || ticketPrompt(ticketContext)}${internalContext}`;
   if (action === "improve_text") return `Turn this draft into a complete, professional, friendly Ricardo customer reply. Detect and retain the original language. Do not invent facts, agent names or signatures. Return only the final reply. Use the applicable exact greeting and closing below.\n\nCustomer name: ${requesterName || ""}\n${templates}\n\nOriginal text:\n${text}`;
   return `Translate this text into ${language}. Preserve its meaning precisely. If it is a customer reply, return a complete customer-ready reply using the appropriate exact greeting and closing below. Otherwise translate naturally without adding content. Return only the final text.\n\nCustomer name: ${requesterName || ""}\n${templates}\n\nOriginal text:\n${text}`;
 }
