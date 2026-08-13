@@ -1,6 +1,7 @@
 (function () {
   const client = ZAFClient.init();
   const button = document.getElementById("open-copilot");
+  client.invoke("resize", { width: "190px", height: "46px" }).catch(() => {});
 
   async function ticketContext() {
     const data = await client.get(["ticket.id", "ticket.subject", "ticket.requester.name"]);
@@ -30,10 +31,21 @@
       if (!payload || String(payload.ticketId) !== current.ticketId) {
         throw new Error("Sicherheitsprüfung fehlgeschlagen: Die Antwort gehört nicht zu diesem Ticket.");
       }
-      await client.invoke("ticket.editor.insert", payload.text);
+      await client.invoke("ticket.editor.insert", textToHtml(payload.text));
       client.invoke("notify", "Antwort wurde in dieses Ticket eingefügt.", "notice");
     } catch (error) {
       client.invoke("notify", error.message || "Die Antwort konnte nicht eingefügt werden.", "error");
     }
   });
+
+  function escapeHtml(value) {
+    return String(value).replace(/[&<>\"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;" }[char]));
+  }
+  function textToHtml(value) {
+    return String(value || "").trim().split(/\n\s*\n/).filter(Boolean).map((block) => {
+      const lines = block.split(/\n/).map((line) => line.trim()).filter(Boolean);
+      if (lines.length && lines.every((line) => /^[-•*]\s+/.test(line))) return `<ul>${lines.map((line) => `<li>${escapeHtml(line.replace(/^[-•*]\s+/, ""))}</li>`).join("")}</ul>`;
+      return `<p>${lines.map(escapeHtml).join("<br>")}</p>`;
+    }).join("");
+  }
 }());
