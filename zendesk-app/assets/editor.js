@@ -16,6 +16,7 @@
       // Hide the launcher before opening so it cannot visually overlap the workspace.
       button.style.visibility = "hidden";
       button.style.pointerEvents = "none";
+      document.body.style.display = "none";
       const encoded = encodeURIComponent(JSON.stringify(context));
       await client.invoke("instances.create", {
         location: "modal",
@@ -25,6 +26,7 @@
     } catch (error) {
       button.style.visibility = "visible";
       button.style.pointerEvents = "auto";
+      document.body.style.display = "block";
       client.invoke("notify", error.message, "error");
     }
   });
@@ -50,8 +52,8 @@
   function textToHtml(value) {
     return String(value || "").trim().split(/\n\s*\n/).filter(Boolean).map((block) => {
       const lines = block.split(/\n/).map((line) => line.trim()).filter(Boolean);
-      if (lines.length && lines.every((line) => /^[-•*]\s+/.test(line))) return `<ul>${lines.map((line) => `<li>${escapeHtml(line.replace(/^[-•*]\s+/, ""))}</li>`).join("")}</ul>`;
-      return `<p>${lines.map(escapeHtml).join("<br>")}</p>`;
+      if (lines.length && lines.every((line) => /^[-•*]\s+/.test(line))) return `<ul>${lines.map((line) => `<li>${escapeHtml(line.replace(/^[-•*]\s+/, ""))}</li>`).join("")}</ul><div><br></div>`;
+      return `<div>${lines.map(escapeHtml).join("<br>")}</div><div><br></div>`;
     }).join("");
   }
 }());
