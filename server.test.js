@@ -78,3 +78,9 @@ test("system prompt allows one specific follow-up question", () => {
   assert.match(source, /eine einzige klare und fallbezogene Rückfrage/);
   assert.match(source, /nicht nach Angaben, die bereits im Ticket stehen/);
 });
+
+test("internal hints cannot inject unsupported concrete facts", () => {
+  const source = fs.readFileSync("./server.js", "utf8");
+  assert.match(source, /Never introduce a number, amount, article ID/);
+  assert.match(source, /internal agent hint as intent or a question/);
+});
