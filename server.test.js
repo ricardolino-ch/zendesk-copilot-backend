@@ -1,6 +1,7 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
 const { getLanguageName, requireTicketId, promptFor } = require("./server");
+const fs = require("node:fs");
 
 test("accepts supported languages and ticket IDs", () => {
   assert.equal(getLanguageName("fr"), "French");
@@ -21,4 +22,10 @@ test("reply prompt uses the selected language", () => {
   const prompt = promptFor({ action: "reply_from_summary", targetLanguage: "fr", text: "Résumé" });
   assert.match(prompt, /entirely in French/);
   assert.match(prompt, /Bonjour/);
+});
+
+test("Ricardo system prompt is loaded", () => {
+  const prompt = fs.readFileSync("./systemprompt.txt", "utf8");
+  assert.match(prompt, /ausschliesslich Antwortentwürfe/);
+  assert.match(prompt, /Vermute niemals Artikelnummern/);
 });

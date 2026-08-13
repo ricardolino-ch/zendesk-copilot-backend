@@ -3,6 +3,8 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const OpenAI = require("openai");
+const fs = require("fs");
+const path = require("path");
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -20,6 +22,7 @@ const LANGUAGES = { de: "German", fr: "French", it: "Italian", en: "English" };
 const SUPPORTED_ACTIONS = new Set([
   "summarize_ticket", "translate_summary", "reply_from_summary", "improve_text", "translate_text"
 ]);
+const SYSTEM_PROMPT = fs.readFileSync(path.join(__dirname, "systemprompt.txt"), "utf8").trim();
 
 function getLanguageName(code) {
   return LANGUAGES[code] || LANGUAGES.de;
@@ -102,7 +105,10 @@ function promptFor({ action, targetLanguage, text, requesterName, ticketContext 
 }
 
 async function runPrompt(prompt) {
-  const response = await getOpenAIClient().responses.create({ model: process.env.OPENAI_MODEL || "gpt-5.4", input: prompt });
+  const response = await getOpenAIClient().responses.create({
+    model: process.env.OPENAI_MODEL || "gpt-5.4",
+    input: `${SYSTEM_PROMPT}\n\nZusätzliche verbindliche Vorgabe: Schreibe die konkrete Aufgabe vollständig in der vom Auftrag verlangten Zielsprache.\n\nAUFGABE:\n${prompt}`
+  });
   return String(response.output_text || "").trim();
 }
 
