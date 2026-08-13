@@ -1,0 +1,54 @@
+(function () {
+  const client = ZAFClient.init();
+  const API_URL = "https://zendesk-copilot-backend-3gv4.onrender.com/copilot";
+  const text = document.getElementById("text");
+  const language = document.getElementById("language");
+  const status = document.getElementById("status");
+  const controls = Array.from(document.querySelectorAll("button[data-action], #insert"));
+  let context = null;
+
+  function setContext(value) {
+    context = value;
+    document.getElementById("ticket-label").textContent = `Ticket #${value.ticketId}${value.subject ? ` · ${value.subject}` : ""}`;
+  }
+  client.on("copilot.context", setContext);
+  client.get(["ticket.id", "ticket.subject", "ticket.requester.name"]).then((data) => {
+    if (!context && data["ticket.id"]) setContext({ ticketId: String(data["ticket.id"]), subject: data["ticket.subject"] || "", requesterName: data["ticket.requester.name"] || "" });
+  });
+
+  function setBusy(message) { controls.forEach((button) => { button.disabled = true; }); status.className = "status loading"; status.textContent = message; }
+  function setStatus(message, isError) { controls.forEach((button) => { button.disabled = false; }); status.className = `status${isError ? " error" : ""}`; status.textContent = message; }
+  async function call(action) {
+    if (!context) throw new Error("Ticket-Kontext wird noch geladen. Bitte kurz warten.");
+    if (action !== "summarize_ticket" && !text.value.trim()) throw new Error("Bitte zuerst einen Text eingeben oder eine Zusammenfassung erstellen.");
+    const response = await fetch(API_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action, targetLanguage: language.value, text: text.value, ticketId: context.ticketId, requesterName: context.requesterName }) });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(data.error || "Der Copilot ist momentan nicht erreichbar.");
+    return data.output;
+  }
+  document.querySelectorAll("button[data-action]").forEach((button) => button.addEventListener("click", async () => {
+    const action = button.dataset.action;
+    const labels = { summarize_ticket: "Zusammenfassung wird erstellt …", reply_from_summary: "Antwort wird erstellt …", translate_summary: "Zusammenfassung wird übersetzt …", improve_text: "Text wird verbessert …", translate_text: "Text wird übersetzt …" };
+    setBusy(labels[action]);
+    try { text.value = await call(action); setStatus("Fertig."); } catch (error) { setStatus(error.message, true); }
+  }));
+  document.getElementById("insert").addEventListener("click", async () => {
+    try {
+      if (!context || !text.value.trim()) throw new Error("Es gibt keinen Text zum Einfügen.");
+      setBusy("Ticket-Zuordnung wird geprüft …");
+      const instances = (await client.get("instances")).instances || {};
+      const editors = Object.keys(instances).filter((guid) => instances[guid].location === "ticket_editor");
+      for (const guid of editors) {
+        const editor = client.instance(guid);
+        const data = await editor.get("ticket.id");
+        if (String(data["ticket.id"] || "") === String(context.ticketId)) {
+          editor.trigger("copilot.insert", { ticketId: context.ticketId, text: text.value });
+          setStatus("Antwort wird in das zugehörige Ticket eingefügt.");
+          return;
+        }
+      }
+      throw new Error("Sicherheitsprüfung fehlgeschlagen: Der passende Ticket-Editor wurde nicht gefunden. Es wurde nichts eingefügt.");
+    } catch (error) { setStatus(error.message, true); }
+  });
+  document.getElementById("close").addEventListener("click", () => client.invoke("instances.close"));
+}());

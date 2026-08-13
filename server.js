@@ -6,372 +6,124 @@ const OpenAI = require("openai");
 
 const app = express();
 const port = process.env.PORT || 3000;
+let openAIClient;
+
+function getOpenAIClient() {
+  if (!openAIClient) openAIClient = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+  return openAIClient;
+}
 
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: "100kb" }));
 
-const client = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
-});
+const LANGUAGES = { de: "German", fr: "French", it: "Italian", en: "English" };
+const SUPPORTED_ACTIONS = new Set([
+  "summarize_ticket", "translate_summary", "reply_from_summary", "improve_text", "translate_text"
+]);
 
 function getLanguageName(code) {
-  const map = {
-    de: "German",
-    fr: "French",
-    it: "Italian",
-    en: "English"
-  };
-  return map[code] || "German";
+  return LANGUAGES[code] || LANGUAGES.de;
 }
 
 function getGreeting(code, requesterName) {
-  const safeName = requesterName || "{{ticket.requester.name}}";
-
-  const greetings = {
-    de: `Grüezi ${safeName}
-
-Vielen Dank für Ihre Anfrage.`,
-    fr: `Bonjour ${safeName}
-
-Merci beaucoup pour votre demande.`,
-    it: `Gentile ${safeName}
-
-La ringraziamo per la Sua richiesta.`,
-    en: `Hello ${safeName}
-
-Thank you for your inquiry.`
-  };
-
-  return greetings[code] || greetings.de;
+  const name = String(requesterName || "{{ticket.requester.name}}").trim();
+  return {
+    de: `Grüezi ${name}\n\nVielen Dank für Ihre Anfrage.`,
+    fr: `Bonjour ${name}\n\nMerci beaucoup pour votre demande.`,
+    it: `Gentile ${name}\n\nLa ringraziamo per la Sua richiesta.`,
+    en: `Hello ${name}\n\nThank you for your inquiry.`
+  }[code] || getGreeting("de", name);
 }
 
 function getClosing(code) {
-  const closings = {
-    de: "Freundliche Grüsse",
-    fr: "Meilleures salutations",
-    it: "Cordiali saluti",
-    en: "Kind regards"
-  };
-
-  return closings[code] || closings.de;
+  return { de: "Freundliche Grüsse", fr: "Meilleures salutations", it: "Cordiali saluti", en: "Kind regards" }[code] || "Freundliche Grüsse";
 }
 
-async function runPrompt(prompt) {
-  const response = await client.responses.create({
-    model: "gpt-5.4",
-    input: prompt
-  });
-
-  return response.output_text || "";
-}
-
-function getZendeskAuthHeader() {
-  const email = process.env.ZENDESK_EMAIL;
-  const token = process.env.ZENDESK_API_TOKEN;
-
-  if (!email || !token) {
-    throw new Error("ZENDESK_EMAIL oder ZENDESK_API_TOKEN fehlt");
+function requireTicketId(ticketId) {
+  // Zendesk ticket IDs are positive integers. Rejecting anything else avoids accidental API calls.
+  if (!/^\d+$/.test(String(ticketId || ""))) {
+    const error = new Error("A valid ticketId is required for this action.");
+    error.status = 400;
+    throw error;
   }
-
-  const raw = `${email}/token:${token}`;
-  return `Basic ${Buffer.from(raw).toString("base64")}`;
+  return String(ticketId);
 }
 
-function getZendeskBaseUrl() {
-  const subdomain = process.env.ZENDESK_SUBDOMAIN;
-
-  if (!subdomain) {
-    throw new Error("ZENDESK_SUBDOMAIN fehlt");
-  }
-
-  return `https://${subdomain}.zendesk.com/api/v2`;
+function shortenText(text, maxLength) {
+  const value = String(text || "").trim();
+  return value.length > maxLength ? `${value.slice(0, maxLength)} …` : value;
 }
 
-async function zendeskGet(url) {
-  const response = await fetch(url, {
-    method: "GET",
+function getZendeskConfig() {
+  const { ZENDESK_EMAIL: email, ZENDESK_API_TOKEN: token, ZENDESK_SUBDOMAIN: subdomain } = process.env;
+  if (!email || !token || !subdomain) throw new Error("Zendesk configuration is incomplete.");
+  return { email, token, subdomain };
+}
+
+async function zendeskGet(path) {
+  const { email, token, subdomain } = getZendeskConfig();
+  const response = await fetch(`https://${subdomain}.zendesk.com/api/v2${path}`, {
     headers: {
-      "Authorization": getZendeskAuthHeader(),
+      Authorization: `Basic ${Buffer.from(`${email}/token:${token}`).toString("base64")}`,
       "Content-Type": "application/json"
     }
   });
-
-  if (!response.ok) {
-    const text = await response.text();
-    throw new Error(`Zendesk request failed: ${response.status} ${text}`);
-  }
-
+  if (!response.ok) throw new Error(`Zendesk request failed (${response.status}).`);
   return response.json();
 }
 
-function shortenText(text, maxLength = 1200) {
-  const value = String(text || "").trim();
-  if (!value) return "";
-  if (value.length <= maxLength) return value;
-  return value.slice(0, maxLength) + " ...";
-}
-
 async function buildTicketContext(ticketId) {
-  const baseUrl = getZendeskBaseUrl();
-
+  const id = requireTicketId(ticketId);
   const [ticketJson, commentsJson] = await Promise.all([
-    zendeskGet(`${baseUrl}/tickets/${ticketId}.json`),
-    zendeskGet(`${baseUrl}/tickets/${ticketId}/comments.json?sort=-created_at`)
+    zendeskGet(`/tickets/${id}.json`),
+    zendeskGet(`/tickets/${id}/comments.json?sort=-created_at`)
   ]);
-
   const ticket = ticketJson.ticket || {};
   const comments = Array.isArray(commentsJson.comments) ? commentsJson.comments : [];
-
-  const latestComments = comments
-    .slice(0, 3)
-    .reverse()
-    .map((comment) => shortenText(comment.plain_body || comment.body || "", 1200))
-    .join("\n\n");
-
   return {
-    subject: shortenText(ticket.subject || "", 300),
-    description: shortenText(ticket.description || "", 1800),
-    commentsText: latestComments
+    subject: shortenText(ticket.subject, 300),
+    description: shortenText(ticket.description, 1800),
+    comments: comments.slice(0, 3).reverse().map((comment) => shortenText(comment.plain_body || comment.body, 1200)).filter(Boolean)
   };
 }
 
-function formatTicketContextForPrompt(ticketContext) {
-  return `
-Betreff:
-${ticketContext.subject || ""}
-
-Beschreibung:
-${ticketContext.description || ""}
-
-Kommentare:
-${ticketContext.commentsText || "Keine Kommentare gefunden."}
-`;
+function ticketPrompt(context) {
+  return `Subject:\n${context.subject || "—"}\n\nDescription:\n${context.description || "—"}\n\nLatest comments:\n${context.comments.join("\n\n") || "No comments found."}`;
 }
 
-app.get("/health", (req, res) => {
-  res.json({ ok: true });
-});
+function promptFor({ action, targetLanguage, text, requesterName, ticketContext }) {
+  const language = getLanguageName(targetLanguage);
+  const templates = `German greeting: ${getGreeting("de", requesterName)}\nGerman closing: ${getClosing("de")}\nFrench greeting: ${getGreeting("fr", requesterName)}\nFrench closing: ${getClosing("fr")}\nItalian greeting: ${getGreeting("it", requesterName)}\nItalian closing: ${getClosing("it")}\nEnglish greeting: ${getGreeting("en", requesterName)}\nEnglish closing: ${getClosing("en")}`;
+  if (action === "summarize_ticket") return `You are a Ricardo Zendesk support assistant. Create a concise internal summary in ${language}. The output language MUST be ${language}; translate extracted facts where needed. Return only 2–4 bullet points, each one sentence at most. Include the issue, essential data (such as account, item or contact details) and the customer’s request. No greeting, closing, heading or invented information.\n\nTicket:\n${ticketPrompt(ticketContext)}`;
+  if (action === "translate_summary") return `Translate this internal summary into ${language}. Preserve its bullet structure and meaning. Do not expand it or turn it into a customer response. Return only the translation.\n\nText:\n${text}`;
+  if (action === "reply_from_summary") return `You are a Ricardo support agent. Write a short, clear, friendly German customer reply from this internal summary. Do not expose internal wording or invent facts. Use exactly this greeting:\n${getGreeting("de", requesterName)}\n\nUse exactly this closing:\n${getClosing("de")}\n\nInternal summary:\n${text}`;
+  if (action === "improve_text") return `Turn this draft into a complete, professional, friendly Ricardo customer reply. Detect and retain the original language. Do not invent facts, agent names or signatures. Return only the final reply. Use the applicable exact greeting and closing below.\n\nCustomer name: ${requesterName || ""}\n${templates}\n\nOriginal text:\n${text}`;
+  return `Translate this text into ${language}. Preserve its meaning precisely. If it is a customer reply, return a complete customer-ready reply using the appropriate exact greeting and closing below. Otherwise translate naturally without adding content. Return only the final text.\n\nCustomer name: ${requesterName || ""}\n${templates}\n\nOriginal text:\n${text}`;
+}
+
+async function runPrompt(prompt) {
+  const response = await getOpenAIClient().responses.create({ model: process.env.OPENAI_MODEL || "gpt-5.4", input: prompt });
+  return String(response.output_text || "").trim();
+}
+
+app.get("/health", (req, res) => res.json({ ok: true, version: "2.0.0" }));
 
 app.post("/copilot", async (req, res) => {
   try {
-    const {
-      action,
-      targetLanguage = "de",
-      text = "",
-      ticketId = "",
-      requesterName = ""
-    } = req.body;
-
-    const languageName = getLanguageName(targetLanguage);
-    const greeting = getGreeting(targetLanguage, requesterName);
-    const closing = getClosing(targetLanguage);
-
-    let prompt = "";
-
-    if (action === "summarize_ticket") {
-      if (!ticketId) {
-        return res.status(400).json({
-          error: "Missing ticketId",
-          details: "ticketId is required for summarize_ticket"
-        });
-      }
-
-      const fullTicketContext = await buildTicketContext(ticketId);
-      const promptContext = formatTicketContextForPrompt(fullTicketContext);
-
-      prompt = `
-You are a Zendesk support assistant.
-
-Create a SHORT and PRECISE internal summary in ${languageName}.
-
-IMPORTANT:
-The output language MUST be ${languageName}.
-Do not use German unless targetLanguage is German.
-All bullet points must be written in ${languageName}.
-Translate any extracted information into ${languageName} where appropriate.
-
-Rules:
-Only bullet points.
-Maximum 4 bullet points.
-Each bullet maximum 1 sentence.
-No intro text.
-No conclusion.
-No label like "Summary" or "Zusammenfassung".
-Focus only on important facts.
-
-Focus on:
-problem
-key data such as emails, accounts, phone numbers
-what the customer wants
-
-Use Ricardo wording where appropriate:
-Benutzerkonto
-Benutzername
-Artikelnummer
-Gebühren
-
-Ticket:
-${promptContext}
-`;
-    } else if (action === "translate_summary") {
-      prompt = `
-Translate the following internal summary into ${languageName}.
-
-Rules:
-Keep the bullet structure.
-Do not expand it.
-Do not turn it into a customer reply.
-Do not add greeting.
-Do not add closing.
-
-Text:
-${text}
-`;
-    } else if (action === "reply_from_summary") {
-      prompt = `
-You are a Ricardo support agent.
-
-Write a clean customer reply in German based on the following internal summary.
-
-Rules:
-friendly
-short
-clear
-no internal wording
-no over-explaining
-use Ricardo wording where appropriate:
-Benutzerkonto
-Benutzername
-Artikelnummer
-Gebühren
-
-Use exactly this greeting:
-${getGreeting("de", requesterName)}
-
-Use exactly this closing:
-${getClosing("de")}
-
-Internal summary:
-${text}
-`;
-    } else if (action === "improve_text") {
-      prompt = `
-You are a Zendesk support copilot.
-
-Turn the following draft into a complete customer-facing support reply.
-
-Rules:
-Detect the language of the original text.
-Keep the same language.
-Rewrite it so it sounds professional, clear, polite and natural.
-Return a complete reply, not just a corrected fragment.
-Use exactly the correct standard greeting and closing for the detected language.
-Do not add any agent name.
-Do not add any extra signature.
-Use Ricardo wording where appropriate:
-Benutzerkonto
-Benutzername
-Artikelnummer
-Gebühren
-Return only the final customer reply.
-
-Customer name:
-${requesterName}
-
-Use these exact templates.
-
-German greeting:
-${getGreeting("de", requesterName)}
-
-German closing:
-${getClosing("de")}
-
-French greeting:
-${getGreeting("fr", requesterName)}
-
-French closing:
-${getClosing("fr")}
-
-Italian greeting:
-${getGreeting("it", requesterName)}
-
-Italian closing:
-${getClosing("it")}
-
-English greeting:
-${getGreeting("en", requesterName)}
-
-English closing:
-${getClosing("en")}
-
-Original text:
-${text}
-`;
-    } else if (action === "translate_text") {
-      prompt = `
-You are a Zendesk support copilot.
-
-Translate the following text into ${languageName}.
-
-Rules:
-Keep the meaning exactly.
-If the text is a customer reply, return a full customer-ready reply with the appropriate greeting and closing.
-If the text is not a customer reply, translate it naturally without inventing extra content.
-Use Ricardo wording where appropriate:
-Benutzerkonto
-Benutzername
-Artikelnummer
-Gebühren
-Return only the final text.
-
-For customer replies, use these templates.
-
-German greeting:
-${getGreeting("de", requesterName)}
-
-German closing:
-${getClosing("de")}
-
-French greeting:
-${getGreeting("fr", requesterName)}
-
-French closing:
-${getClosing("fr")}
-
-Italian greeting:
-${getGreeting("it", requesterName)}
-
-Italian closing:
-${getClosing("it")}
-
-English greeting:
-${getGreeting("en", requesterName)}
-
-English closing:
-${getClosing("en")}
-
-Original text:
-${text}
-`;
-    } else {
-      return res.status(400).json({
-        error: "Invalid action",
-        details: "Unknown action"
-      });
-    }
-
-    const output = await runPrompt(prompt);
-
+    const { action, targetLanguage = "de", text = "", ticketId = "", requesterName = "" } = req.body || {};
+    if (!SUPPORTED_ACTIONS.has(action)) return res.status(400).json({ error: "Invalid action" });
+    if (!LANGUAGES[targetLanguage]) return res.status(400).json({ error: "Invalid target language" });
+    if (action !== "summarize_ticket" && !String(text).trim()) return res.status(400).json({ error: "Text is required for this action" });
+    const ticketContext = action === "summarize_ticket" ? await buildTicketContext(ticketId) : null;
+    const output = await runPrompt(promptFor({ action, targetLanguage, text: shortenText(text, 12000), requesterName: shortenText(requesterName, 120), ticketContext }));
+    if (!output) throw new Error("The AI service returned no text.");
     res.json({ output });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      error: "Backend error",
-      details: error.message
-    });
+    console.error("Copilot error:", error.message);
+    res.status(error.status || 500).json({ error: error.status ? error.message : "The request could not be completed. Please try again." });
   }
 });
 
-app.listen(port, () => {
-  console.log("Server running on port " + port);
-});
+if (require.main === module) app.listen(port, () => console.log(`Ricardo Copilot 2.0 listening on ${port}`));
+
+module.exports = { app, getLanguageName, requireTicketId, promptFor };
