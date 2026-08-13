@@ -109,7 +109,7 @@ function promptFor({ action, targetLanguage, text, requesterName, ticketContext 
 
 async function runPrompt(prompt) {
   const response = await getOpenAIClient().responses.create({
-    model: process.env.OPENAI_MODEL || "gpt-5.4",
+    model: "gpt-5.6-luna",
     input: `${SYSTEM_PROMPT}\n\nVERBINDLICHE FREIGEGEBENE WISSENSBASIS:\n${KNOWLEDGE_PACK}\n\nZusätzliche verbindliche Vorgabe: Schreibe die konkrete Aufgabe vollständig in der vom Auftrag verlangten Zielsprache. Verwende die Wissensbasis nur, wenn sie zum Ticket passt. Bei Widerspruch oder fehlender Grundlage keine Regel erfinden.\n\nAUFGABE:\n${prompt}`
   });
   return String(response.output_text || "").trim();
