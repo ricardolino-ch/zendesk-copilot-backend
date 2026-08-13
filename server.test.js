@@ -24,6 +24,12 @@ test("reply prompt uses the selected language", () => {
   assert.match(prompt, /Bonjour/);
 });
 
+test("reply prompt requires the full closing sentence", () => {
+  const prompt = promptFor({ action: "reply_from_summary", targetLanguage: "de", text: "Zusammenfassung" });
+  assert.match(prompt, /Bei weiteren Fragen stehen wir Ihnen jederzeit gerne zur Verfügung/);
+  assert.match(prompt, /Freundliche Grüsse/);
+});
+
 test("Ricardo system prompt is loaded", () => {
   const prompt = fs.readFileSync("./systemprompt.txt", "utf8");
   assert.match(prompt, /ausschliesslich Antwortentwürfe/);
@@ -34,4 +40,9 @@ test("approved knowledge pack is available", () => {
   const pack = fs.readFileSync("./knowledge-pack.md", "utf8");
   assert.match(pack, /Ricardo Wissenspaket/);
   assert.match(pack, /Käuferschutz/);
+});
+
+test("only approved feedback is eligible as a pattern", () => {
+  assert.match(fs.readFileSync("./server.js", "utf8"), /status === "approved"/);
+  assert.match(fs.readFileSync("./server.js", "utf8"), /GEPRÜFTE ÄHNLICHE MUSTERBEISPIELE/);
 });

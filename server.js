@@ -45,6 +45,16 @@ function getClosing(code) {
   return { de: "Freundliche Grüsse", fr: "Meilleures salutations", it: "Cordiali saluti", en: "Kind regards" }[code] || "Freundliche Grüsse";
 }
 
+function getFullClosing(code) {
+  const sentence = {
+    de: "Bei weiteren Fragen stehen wir Ihnen jederzeit gerne zur Verfügung.",
+    fr: "Si vous avez d'autres questions, nous restons volontiers à votre disposition.",
+    it: "Per qualsiasi ulteriore domanda, restiamo volentieri a Sua disposizione.",
+    en: "If you have any further questions, we will be happy to assist you."
+  }[code] || "Bei weiteren Fragen stehen wir Ihnen jederzeit gerne zur Verfügung.";
+  return `${sentence}\n\n${getClosing(code)}`;
+}
+
 function requireTicketId(ticketId) {
   // Zendesk ticket IDs are positive integers. Rejecting anything else avoids accidental API calls.
   if (!/^\d+$/.test(String(ticketId || ""))) {
@@ -99,18 +109,35 @@ function ticketPrompt(context) {
 
 function promptFor({ action, targetLanguage, text, requesterName, ticketContext }) {
   const language = getLanguageName(targetLanguage);
-  const templates = `German greeting: ${getGreeting("de", requesterName)}\nGerman closing: ${getClosing("de")}\nFrench greeting: ${getGreeting("fr", requesterName)}\nFrench closing: ${getClosing("fr")}\nItalian greeting: ${getGreeting("it", requesterName)}\nItalian closing: ${getClosing("it")}\nEnglish greeting: ${getGreeting("en", requesterName)}\nEnglish closing: ${getClosing("en")}`;
+  const templates = `German greeting: ${getGreeting("de", requesterName)}\nGerman closing: ${getFullClosing("de")}\nFrench greeting: ${getGreeting("fr", requesterName)}\nFrench closing: ${getFullClosing("fr")}\nItalian greeting: ${getGreeting("it", requesterName)}\nItalian closing: ${getFullClosing("it")}\nEnglish greeting: ${getGreeting("en", requesterName)}\nEnglish closing: ${getFullClosing("en")}`;
   if (action === "summarize_ticket") return `You are a Ricardo Zendesk support assistant. Create a concise internal summary in ${language}. The output language MUST be ${language}; translate extracted facts where needed. Return only 2–4 bullet points, each one sentence at most. Include the issue, essential data (such as account, item or contact details) and the customer’s request. No greeting, closing, heading or invented information.\n\nTicket:\n${ticketPrompt(ticketContext)}`;
   if (action === "translate_summary") return `Translate this internal summary into ${language}. Preserve its bullet structure and meaning. Do not expand it or turn it into a customer response. Return only the translation.\n\nText:\n${text}`;
-  if (action === "reply_from_summary") return `You are a Ricardo support agent. Write a short, clear, friendly customer reply in ${language} from the provided ticket context or internal summary. The reply MUST be entirely in ${language}; do not default to German. Answer the customer's actual questions, do not expose internal wording and do not invent facts. Use exactly this greeting:\n${getGreeting(targetLanguage, requesterName)}\n\nUse exactly this closing:\n${getClosing(targetLanguage)}\n\nSource:\n${text || ticketPrompt(ticketContext)}`;
+  if (action === "reply_from_summary") return `You are a Ricardo support agent. Write a short, clear, friendly customer reply in ${language} from the provided ticket context or internal summary. The reply MUST be entirely in ${language}; do not default to German. Answer the customer's actual questions, do not expose internal wording and do not invent facts. Use exactly this greeting:\n${getGreeting(targetLanguage, requesterName)}\n\nUse exactly this closing, including the sentence before the sign-off:\n${getFullClosing(targetLanguage)}\n\nSource:\n${text || ticketPrompt(ticketContext)}`;
   if (action === "improve_text") return `Turn this draft into a complete, professional, friendly Ricardo customer reply. Detect and retain the original language. Do not invent facts, agent names or signatures. Return only the final reply. Use the applicable exact greeting and closing below.\n\nCustomer name: ${requesterName || ""}\n${templates}\n\nOriginal text:\n${text}`;
   return `Translate this text into ${language}. Preserve its meaning precisely. If it is a customer reply, return a complete customer-ready reply using the appropriate exact greeting and closing below. Otherwise translate naturally without adding content. Return only the final text.\n\nCustomer name: ${requesterName || ""}\n${templates}\n\nOriginal text:\n${text}`;
 }
 
-async function runPrompt(prompt) {
+function approvedExamplesFor(query) {
+  if (!fs.existsSync(FEEDBACK_FILE)) return "";
+  const queryWords = new Set(String(query || "").toLowerCase().match(/[a-zäöüàéèê0-9]{4,}/g) || []);
+  const rows = fs.readFileSync(FEEDBACK_FILE, "utf8").split("\n").filter(Boolean).map((line) => {
+    try { return JSON.parse(line); } catch (_) { return null; }
+  }).filter((row) => row && row.status === "approved");
+  const ranked = rows.map((row) => {
+    const words = String(row.original || "").toLowerCase().match(/[a-zäöüàéèê0-9]{4,}/g) || [];
+    const score = words.reduce((sum, word) => sum + (queryWords.has(word) ? 1 : 0), 0);
+    return { row, score };
+  }).sort((a, b) => b.score - a.score).slice(0, 3).filter((item) => item.score > 0);
+  if (!ranked.length) return "";
+  return ranked.map(({ row }, index) => `Geprüftes Muster ${index + 1}:\n${row.corrected}`).join("\n\n");
+}
+
+async function runPrompt(prompt, query) {
+  const examples = approvedExamplesFor(query);
+  const examplesBlock = examples ? `\n\nGEPRÜFTE ÄHNLICHE MUSTERBEISPIELE:\n${examples}\n\nNutze diese Beispiele nur als Stil- und Lösungsreferenz. Übertrage keine Fakten, Namen, Nummern oder Fristen aus einem Beispiel in das aktuelle Ticket.` : "";
   const response = await getOpenAIClient().responses.create({
     model: "gpt-5.6-luna",
-    input: `${SYSTEM_PROMPT}\n\nVERBINDLICHE FREIGEGEBENE WISSENSBASIS:\n${KNOWLEDGE_PACK}\n\nZusätzliche verbindliche Vorgabe: Schreibe die konkrete Aufgabe vollständig in der vom Auftrag verlangten Zielsprache. Verwende die Wissensbasis nur, wenn sie zum Ticket passt. Bei Widerspruch oder fehlender Grundlage keine Regel erfinden.\n\nAUFGABE:\n${prompt}`
+    input: `${SYSTEM_PROMPT}\n\nVERBINDLICHE FREIGEGEBENE WISSENSBASIS:\n${KNOWLEDGE_PACK}${examplesBlock}\n\nZusätzliche verbindliche Vorgabe: Schreibe die konkrete Aufgabe vollständig in der vom Auftrag verlangten Zielsprache. Verwende die Wissensbasis nur, wenn sie zum Ticket passt. Bei Widerspruch oder fehlender Grundlage keine Regel erfinden.\n\nAUFGABE:\n${prompt}`
   });
   return String(response.output_text || "").trim();
 }
@@ -164,7 +191,8 @@ app.post("/copilot", async (req, res) => {
     if (!LANGUAGES[targetLanguage]) return res.status(400).json({ error: "Invalid target language" });
     if (action !== "summarize_ticket" && action !== "reply_from_summary" && !String(text).trim()) return res.status(400).json({ error: "Text is required for this action" });
     const ticketContext = (action === "summarize_ticket" || (action === "reply_from_summary" && !String(text).trim())) ? await buildTicketContext(ticketId) : null;
-    const output = await runPrompt(promptFor({ action, targetLanguage, text: shortenText(text, 12000), requesterName: shortenText(requesterName, 120), ticketContext }));
+    const query = `${text} ${ticketContext ? ticketPrompt(ticketContext) : ""}`;
+    const output = await runPrompt(promptFor({ action, targetLanguage, text: shortenText(text, 12000), requesterName: shortenText(requesterName, 120), ticketContext }), query);
     if (!output) throw new Error("The AI service returned no text.");
     res.json({ output });
   } catch (error) {
