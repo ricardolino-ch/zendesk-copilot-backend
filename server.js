@@ -142,12 +142,13 @@ function ticketPrompt(context) {
   return `Subject:\n${context.subject || "—"}\n\nDescription:\n${context.description || "—"}\n\nLatest comments:\n${context.comments.join("\n\n") || "No comments found."}`;
 }
 
-function promptFor({ action, targetLanguage, text, requesterName, ticketContext }) {
+function promptFor({ action, targetLanguage, text, agentContext, requesterName, ticketContext }) {
   const language = getLanguageName(targetLanguage);
+  const internalContext = agentContext ? `\n\nINTERNER HINWEIS DES AGENTEN:\n${agentContext}\n\nDiesen Hinweis niemals wörtlich an das Mitglied ausgeben. Nutze ihn nur zur Beurteilung des Falls.` : "";
   const templates = `German greeting: ${getGreeting("de", requesterName)}\nGerman closing: ${getFullClosing("de")}\nFrench greeting: ${getGreeting("fr", requesterName)}\nFrench closing: ${getFullClosing("fr")}\nItalian greeting: ${getGreeting("it", requesterName)}\nItalian closing: ${getFullClosing("it")}\nEnglish greeting: ${getGreeting("en", requesterName)}\nEnglish closing: ${getFullClosing("en")}`;
-  if (action === "summarize_ticket") return `You are a Ricardo Zendesk support assistant. Create a concise internal summary in ${language}. The output language MUST be ${language}; translate extracted facts where needed. Return only 2–4 bullet points, each one sentence at most. Include the issue, essential data (such as account, item or contact details) and the customer’s request. No greeting, closing, heading or invented information.\n\nTicket:\n${ticketPrompt(ticketContext)}`;
+  if (action === "summarize_ticket") return `You are a Ricardo Zendesk support assistant. Create a concise internal summary in ${language}. The output language MUST be ${language}; translate extracted facts where needed. Return only 2–4 bullet points, each one sentence at most. Include the issue, essential data and the customer’s request. No greeting, closing, heading or invented information.\n\nTicket:\n${ticketPrompt(ticketContext)}${internalContext}`;
   if (action === "translate_summary") return `Translate this internal summary into ${language}. Preserve its bullet structure and meaning. Do not expand it or turn it into a customer response. Return only the translation.\n\nText:\n${text}`;
-  if (action === "reply_from_summary") return `You are a Ricardo support agent. Write a short, clear, friendly customer reply in ${language} from the provided ticket context or internal summary. The reply MUST be entirely in ${language}; do not default to German. Answer the customer's actual questions, do not expose internal wording and do not invent facts. Use exactly this greeting:\n${getGreeting(targetLanguage, requesterName)}\n\nUse exactly this closing, including the sentence before the sign-off:\n${getFullClosing(targetLanguage)}\n\nSource:\n${text || ticketPrompt(ticketContext)}`;
+  if (action === "reply_from_summary") return `You are a Ricardo support agent. Write a short, clear, friendly customer reply in ${language} from the provided ticket context or internal summary. The reply MUST be entirely in ${language}; do not default to German. Answer the customer's actual questions, do not expose internal wording and do not invent facts. Use exactly this greeting:\n${getGreeting(targetLanguage, requesterName)}\n\nUse exactly this closing, including the sentence before the sign-off:\n${getFullClosing(targetLanguage)}\n\nSource:\n${text || ticketPrompt(ticketContext)}${internalContext}`;
   if (action === "improve_text") return `Turn this draft into a complete, professional, friendly Ricardo customer reply. Detect and retain the original language. Do not invent facts, agent names or signatures. Return only the final reply. Use the applicable exact greeting and closing below.\n\nCustomer name: ${requesterName || ""}\n${templates}\n\nOriginal text:\n${text}`;
   return `Translate this text into ${language}. Preserve its meaning precisely. If it is a customer reply, return a complete customer-ready reply using the appropriate exact greeting and closing below. Otherwise translate naturally without adding content. Return only the final text.\n\nCustomer name: ${requesterName || ""}\n${templates}\n\nOriginal text:\n${text}`;
 }
@@ -221,13 +222,13 @@ app.post("/feedback/review", (req, res) => {
 
 app.post("/copilot", requireApiToken, async (req, res) => {
   try {
-    const { action, targetLanguage = "de", text = "", ticketId = "", requesterName = "" } = req.body || {};
+    const { action, targetLanguage = "de", text = "", agentContext = "", ticketId = "", requesterName = "" } = req.body || {};
     if (!SUPPORTED_ACTIONS.has(action)) return res.status(400).json({ error: "Invalid action" });
     if (!LANGUAGES[targetLanguage]) return res.status(400).json({ error: "Invalid target language" });
     if (action !== "summarize_ticket" && action !== "reply_from_summary" && !String(text).trim()) return res.status(400).json({ error: "Text is required for this action" });
     const ticketContext = (action === "summarize_ticket" || (action === "reply_from_summary" && !String(text).trim())) ? await buildTicketContext(ticketId) : null;
-    const query = `${text} ${ticketContext ? ticketPrompt(ticketContext) : ""}`;
-    const output = await runPrompt(promptFor({ action, targetLanguage, text: shortenText(text, 12000), requesterName: shortenText(requesterName, 120), ticketContext }), query);
+    const query = `${text} ${agentContext} ${ticketContext ? ticketPrompt(ticketContext) : ""}`;
+    const output = await runPrompt(promptFor({ action, targetLanguage, text: shortenText(text, 12000), agentContext: shortenText(agentContext, 6000), requesterName: shortenText(requesterName, 120), ticketContext }), query);
     if (!output) throw new Error("The AI service returned no text.");
     res.json({ output });
   } catch (error) {

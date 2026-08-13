@@ -3,6 +3,7 @@
   const API_URL = "https://zendesk-copilot-backend-3gv4.onrender.com/copilot";
   const API_TOKEN = "d479b48256587650f1c553f923af1a81186b61dcd546c37ee76d57b3563f784d";
   const text = document.getElementById("text");
+  const agentContext = document.getElementById("agent-context");
   const language = document.getElementById("language");
   const status = document.getElementById("status");
   const controls = Array.from(document.querySelectorAll("button[data-action], #insert, #save-feedback"));
@@ -28,8 +29,8 @@
   function setStatus(message, isError) { controls.forEach((button) => { button.disabled = false; }); status.className = `status${isError ? " error" : ""}`; status.textContent = message; }
   async function call(action) {
     if (!context) throw new Error("Ticket-Kontext wird noch geladen. Bitte kurz warten.");
-    if (action !== "summarize_ticket" && action !== "reply_from_summary" && !text.value.trim()) throw new Error("Bitte zuerst einen Text eingeben oder eine Zusammenfassung erstellen.");
-    const response = await fetch(API_URL, { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${API_TOKEN}` }, body: JSON.stringify({ action, targetLanguage: language.value, text: text.value, ticketId: context.ticketId, requesterName: context.requesterName }) });
+    if (action !== "summarize_ticket" && action !== "reply_from_summary" && !text.value.trim() && !agentContext.value.trim()) throw new Error("Bitte einen internen Hinweis oder einen Text eingeben.");
+    const response = await fetch(API_URL, { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${API_TOKEN}` }, body: JSON.stringify({ action, targetLanguage: language.value, text: text.value, agentContext: agentContext.value, ticketId: context.ticketId, requesterName: context.requesterName }) });
     const data = await response.json().catch(() => ({}));
     if (!response.ok) throw new Error(data.error || "Der Copilot ist momentan nicht erreichbar.");
     return data.output;
