@@ -27,7 +27,7 @@
   function setStatus(message, isError) { controls.forEach((button) => { button.disabled = false; }); status.className = `status${isError ? " error" : ""}`; status.textContent = message; }
   async function call(action) {
     if (!context) throw new Error("Ticket-Kontext wird noch geladen. Bitte kurz warten.");
-    if (action !== "summarize_ticket" && !text.value.trim()) throw new Error("Bitte zuerst einen Text eingeben oder eine Zusammenfassung erstellen.");
+    if (action !== "summarize_ticket" && action !== "reply_from_summary" && !text.value.trim()) throw new Error("Bitte zuerst einen Text eingeben oder eine Zusammenfassung erstellen.");
     const response = await fetch(API_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action, targetLanguage: language.value, text: text.value, ticketId: context.ticketId, requesterName: context.requesterName }) });
     const data = await response.json().catch(() => ({}));
     if (!response.ok) throw new Error(data.error || "Der Copilot ist momentan nicht erreichbar.");
