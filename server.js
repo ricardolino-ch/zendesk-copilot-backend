@@ -24,6 +24,18 @@ const SUPPORTED_ACTIONS = new Set([
 ]);
 const SYSTEM_PROMPT = fs.readFileSync(path.join(__dirname, "systemprompt.txt"), "utf8").trim();
 const KNOWLEDGE_PACK = fs.readFileSync(path.join(__dirname, "knowledge-pack.md"), "utf8").trim();
+function loadMarkdownTree(root) {
+  if (!fs.existsSync(root)) return "";
+  const files = [];
+  const visit = (dir) => fs.readdirSync(dir, { withFileTypes: true }).forEach((entry) => {
+    const full = path.join(dir, entry.name);
+    if (entry.isDirectory()) visit(full);
+    else if (entry.isFile() && entry.name.endsWith(".md")) files.push(full);
+  });
+  visit(root);
+  return files.sort().map((file) => `\n\n## Quelle: ${path.relative(__dirname, file)}\n${fs.readFileSync(file, "utf8")}`).join("").trim();
+}
+const PROJECT_SOURCES = `${loadMarkdownTree(path.join(__dirname, "docs"))}\n\n${loadMarkdownTree(path.join(__dirname, "project-sources"))}`.trim();
 const FEEDBACK_DIR = path.join(__dirname, "feedback");
 const FEEDBACK_FILE = path.join(FEEDBACK_DIR, "pending.jsonl");
 
@@ -146,7 +158,7 @@ async function runPrompt(prompt, query) {
   const examplesBlock = examples ? `\n\nGEPRÜFTE ÄHNLICHE MUSTERBEISPIELE:\n${examples}\n\nNutze diese Beispiele nur als Stil- und Lösungsreferenz. Übertrage keine Fakten, Namen, Nummern oder Fristen aus einem Beispiel in das aktuelle Ticket.` : "";
   const response = await getOpenAIClient().responses.create({
     model: "gpt-5.6-luna",
-    input: `${SYSTEM_PROMPT}\n\nVERBINDLICHE FREIGEGEBENE WISSENSBASIS:\n${KNOWLEDGE_PACK}${examplesBlock}\n\nZusätzliche verbindliche Vorgabe: Schreibe die konkrete Aufgabe vollständig in der vom Auftrag verlangten Zielsprache. Verwende die Wissensbasis nur, wenn sie zum Ticket passt. Bei Widerspruch oder fehlender Grundlage keine Regel erfinden.\n\nAUFGABE:\n${prompt}`
+    input: `${SYSTEM_PROMPT}\n\nVERBINDLICHE FREIGEGEBENE WISSENSBASIS:\n${KNOWLEDGE_PACK}\n\nZUSÄTZLICHE PROJEKTQUELLEN UND DOKUMENTATION:\n${PROJECT_SOURCES}${examplesBlock}\n\nZusätzliche verbindliche Vorgabe: Schreibe die konkrete Aufgabe vollständig in der vom Auftrag verlangten Zielsprache. Verwende Quellen nur, wenn sie zum Ticket passen. Bei Widerspruch oder fehlender Grundlage keine Regel erfinden.\n\nAUFGABE:\n${prompt}`
   });
   return String(response.output_text || "").trim();
 }

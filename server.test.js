@@ -53,3 +53,9 @@ test("feedback is anonymized before storage and reuse", () => {
   assert.match(source, /\[E-MAIL\]/);
   assert.match(source, /\[TELEFON\]/);
 });
+
+test("project documentation is loaded", () => {
+  const source = fs.readFileSync("./server.js", "utf8");
+  assert.match(source, /PROJECT_SOURCES/);
+  assert.match(source, /loadMarkdownTree/);
+});
