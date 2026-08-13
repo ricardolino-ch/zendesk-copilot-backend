@@ -46,3 +46,10 @@ test("only approved feedback is eligible as a pattern", () => {
   assert.match(fs.readFileSync("./server.js", "utf8"), /status === "approved"/);
   assert.match(fs.readFileSync("./server.js", "utf8"), /GEPRÜFTE ÄHNLICHE MUSTERBEISPIELE/);
 });
+
+test("feedback is anonymized before storage and reuse", () => {
+  const source = fs.readFileSync("./server.js", "utf8");
+  assert.match(source, /anonymizeText\(original\)/);
+  assert.match(source, /\[E-MAIL\]/);
+  assert.match(source, /\[TELEFON\]/);
+});

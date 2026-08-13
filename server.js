@@ -70,6 +70,15 @@ function shortenText(text, maxLength) {
   return value.length > maxLength ? `${value.slice(0, maxLength)} …` : value;
 }
 
+function anonymizeText(value) {
+  return String(value || "")
+    .replace(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi, "[E-MAIL]")
+    .replace(/(?:\+?\d[\d\s()./-]{7,}\d)/g, "[TELEFON]")
+    .replace(/\b(?:ticket|artikel|order|bestellung|konto|benutzerkonto|mitglied)\s*#?\s*\d{4,}\b/gi, (match) => match.replace(/\d{4,}/, "[NUMMER]"))
+    .replace(/\b\d{7,}\b/g, "[NUMMER]")
+    .trim();
+}
+
 function getZendeskConfig() {
   const { ZENDESK_EMAIL: email, ZENDESK_API_TOKEN: token, ZENDESK_SUBDOMAIN: subdomain } = process.env;
   if (!email || !token || !subdomain) throw new Error("Zendesk configuration is incomplete.");
@@ -129,7 +138,7 @@ function approvedExamplesFor(query) {
     return { row, score };
   }).sort((a, b) => b.score - a.score).slice(0, 3).filter((item) => item.score > 0);
   if (!ranked.length) return "";
-  return ranked.map(({ row }, index) => `Geprüftes Muster ${index + 1}:\n${row.corrected}`).join("\n\n");
+  return ranked.map(({ row }, index) => `Geprüftes Muster ${index + 1}:\n${anonymizeText(row.corrected)}`).join("\n\n");
 }
 
 async function runPrompt(prompt, query) {
@@ -150,7 +159,7 @@ app.post("/feedback", (req, res) => {
     if (!String(original || "").trim() || !String(corrected || "").trim()) return res.status(400).json({ error: "Original and corrected text are required" });
     if (String(original).length > 20000 || String(corrected).length > 20000) return res.status(400).json({ error: "Feedback is too long" });
     fs.mkdirSync(FEEDBACK_DIR, { recursive: true });
-    fs.appendFileSync(FEEDBACK_FILE, `${JSON.stringify({ status: "pending", createdAt: new Date().toISOString(), action: String(action || "unknown"), language: String(language || "de"), ticketId: /^\\d+$/.test(String(ticketId)) ? String(ticketId) : "", original: String(original), corrected: String(corrected) })}\n`, "utf8");
+    fs.appendFileSync(FEEDBACK_FILE, `${JSON.stringify({ status: "pending", createdAt: new Date().toISOString(), action: String(action || "unknown"), language: String(language || "de"), ticketId: "", original: anonymizeText(original), corrected: anonymizeText(corrected) })}\n`, "utf8");
     res.status(202).json({ ok: true, status: "pending" });
   } catch (error) { res.status(500).json({ error: "Feedback could not be saved" }); }
 });
