@@ -11,8 +11,11 @@
   button.addEventListener("click", async () => {
     try {
       const context = await ticketContext();
-      client.instance("modal", { url: "assets/modal.html", size: { width: "960px", height: "760px" } }).then((modalClient) => {
-        modalClient.trigger("copilot.context", context);
+      const encoded = encodeURIComponent(JSON.stringify(context));
+      await client.invoke("instances.create", {
+        location: "modal",
+        url: `assets/modal.html?context=${encoded}`,
+        size: { width: "960px", height: "760px" }
       });
     } catch (error) {
       client.invoke("notify", error.message, "error");

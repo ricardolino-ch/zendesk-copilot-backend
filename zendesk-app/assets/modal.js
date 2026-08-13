@@ -12,6 +12,12 @@
     document.getElementById("ticket-label").textContent = `Ticket #${value.ticketId}${value.subject ? ` · ${value.subject}` : ""}`;
   }
   client.on("copilot.context", setContext);
+  try {
+    const query = new URLSearchParams(window.location.search).get("context");
+    if (query) setContext(JSON.parse(query));
+  } catch (error) {
+    setStatus("Ticket-Kontext konnte nicht geladen werden.", true);
+  }
   client.get(["ticket.id", "ticket.subject", "ticket.requester.name"]).then((data) => {
     if (!context && data["ticket.id"]) setContext({ ticketId: String(data["ticket.id"]), subject: data["ticket.subject"] || "", requesterName: data["ticket.requester.name"] || "" });
   });

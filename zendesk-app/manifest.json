@@ -1,14 +1,23 @@
 {
   "name": "Ricardo Copilot",
-  "author": { "name": "Ricardo" },
+  "author": {
+    "name": "Larissa Hegglin",
+    "email": "larissa.hegglin@swissmarketplace.group"
+  },
   "defaultLocale": "de",
   "private": true,
   "version": "2.0.0",
   "frameworkVersion": "2.0",
   "location": {
     "support": {
-      "ticket_editor": "assets/editor.html",
-      "modal": "assets/modal.html"
+      "ticket_editor": {
+        "url": "assets/editor.html",
+        "flexible": true
+      },
+      "modal": {
+        "url": "assets/modal.html",
+        "flexible": true
+      }
     }
   }
 }
