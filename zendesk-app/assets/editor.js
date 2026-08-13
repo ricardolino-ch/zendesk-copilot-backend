@@ -12,6 +12,10 @@
   button.addEventListener("click", async () => {
     try {
       const context = await ticketContext();
+      // Zendesk keeps the ticket_editor iframe above a modal in some layouts.
+      // Hide the launcher before opening so it cannot visually overlap the workspace.
+      button.style.visibility = "hidden";
+      button.style.pointerEvents = "none";
       const encoded = encodeURIComponent(JSON.stringify(context));
       await client.invoke("instances.create", {
         location: "modal",
@@ -19,6 +23,8 @@
         size: { width: "960px", height: "760px" }
       });
     } catch (error) {
+      button.style.visibility = "visible";
+      button.style.pointerEvents = "auto";
       client.invoke("notify", error.message, "error");
     }
   });
