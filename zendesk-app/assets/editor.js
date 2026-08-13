@@ -17,6 +17,8 @@
       button.style.visibility = "hidden";
       button.style.pointerEvents = "none";
       document.body.style.display = "none";
+      // Collapse the launcher iframe itself; hiding its body alone leaves a blank card.
+      await client.invoke("resize", { width: "1px", height: "1px" });
       const encoded = encodeURIComponent(JSON.stringify(context));
       await client.invoke("instances.create", {
         location: "modal",

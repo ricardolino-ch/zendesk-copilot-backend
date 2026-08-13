@@ -56,5 +56,14 @@
       throw new Error("Sicherheitsprüfung fehlgeschlagen: Der passende Ticket-Editor wurde nicht gefunden. Es wurde nichts eingefügt.");
     } catch (error) { setStatus(error.message, true); }
   });
-  document.getElementById("close").addEventListener("click", () => client.invoke("instances.close"));
+  async function closeCopilot() {
+    try {
+      await client.invoke("instances.close");
+    } catch (error) {
+      // Keep the close control reliable even if Zendesk reports a late instance event.
+      window.parent.postMessage({ type: "zendesk-copilot-close" }, "*");
+    }
+  }
+  document.getElementById("close").addEventListener("click", closeCopilot);
+  window.addEventListener("keydown", (event) => { if (event.key === "Escape") closeCopilot(); });
 }());
