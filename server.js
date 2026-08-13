@@ -128,6 +128,35 @@ app.post("/feedback", (req, res) => {
   } catch (error) { res.status(500).json({ error: "Feedback could not be saved" }); }
 });
 
+function feedbackAuthorized(req) {
+  const token = process.env.FEEDBACK_REVIEW_TOKEN;
+  return token && req.get("authorization") === `Bearer ${token}`;
+}
+
+app.get("/feedback/review", (req, res) => res.sendFile(path.join(__dirname, "feedback", "review.html")));
+
+app.get("/feedback/pending", (req, res) => {
+  if (!feedbackAuthorized(req)) return res.status(401).json({ error: "Review authorization required" });
+  if (!fs.existsSync(FEEDBACK_FILE)) return res.json({ items: [] });
+  const items = fs.readFileSync(FEEDBACK_FILE, "utf8").split("\n").filter(Boolean).map((line, index) => ({ index, ...JSON.parse(line) })).filter((item) => item.status === "pending");
+  res.json({ items });
+});
+
+app.post("/feedback/review", (req, res) => {
+  if (!feedbackAuthorized(req)) return res.status(401).json({ error: "Review authorization required" });
+  const index = Number(req.body && req.body.index);
+  const status = req.body && req.body.status;
+  if (!Number.isInteger(index) || !["approved", "rejected"].includes(status) || !fs.existsSync(FEEDBACK_FILE)) return res.status(400).json({ error: "Invalid review request" });
+  const lines = fs.readFileSync(FEEDBACK_FILE, "utf8").split("\n").filter(Boolean);
+  if (!lines[index]) return res.status(404).json({ error: "Feedback not found" });
+  const item = JSON.parse(lines[index]);
+  item.status = status;
+  item.reviewedAt = new Date().toISOString();
+  lines[index] = JSON.stringify(item);
+  fs.writeFileSync(FEEDBACK_FILE, `${lines.join("\n")}\n`, "utf8");
+  res.json({ ok: true, status });
+});
+
 app.post("/copilot", async (req, res) => {
   try {
     const { action, targetLanguage = "de", text = "", ticketId = "", requesterName = "" } = req.body || {};
