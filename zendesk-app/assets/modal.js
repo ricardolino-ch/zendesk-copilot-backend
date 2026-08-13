@@ -1,6 +1,7 @@
 (function () {
   const client = ZAFClient.init();
   const API_URL = "https://zendesk-copilot-backend-3gv4.onrender.com/copilot";
+  const API_TOKEN = "d479b48256587650f1c553f923af1a81186b61dcd546c37ee76d57b3563f784d";
   const text = document.getElementById("text");
   const language = document.getElementById("language");
   const status = document.getElementById("status");
@@ -28,7 +29,7 @@
   async function call(action) {
     if (!context) throw new Error("Ticket-Kontext wird noch geladen. Bitte kurz warten.");
     if (action !== "summarize_ticket" && action !== "reply_from_summary" && !text.value.trim()) throw new Error("Bitte zuerst einen Text eingeben oder eine Zusammenfassung erstellen.");
-    const response = await fetch(API_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action, targetLanguage: language.value, text: text.value, ticketId: context.ticketId, requesterName: context.requesterName }) });
+    const response = await fetch(API_URL, { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${API_TOKEN}` }, body: JSON.stringify({ action, targetLanguage: language.value, text: text.value, ticketId: context.ticketId, requesterName: context.requesterName }) });
     const data = await response.json().catch(() => ({}));
     if (!response.ok) throw new Error(data.error || "Der Copilot ist momentan nicht erreichbar.");
     return data.output;
@@ -61,7 +62,7 @@
     try {
       if (!context || !lastGeneratedText || !text.value.trim()) throw new Error("Bitte zuerst einen Entwurf erzeugen und korrigieren.");
       setBusy("Korrektur wird zur Prüfung gespeichert …");
-      const response = await fetch(API_URL.replace(/\/copilot$/, "/feedback"), { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "copilot_edit", language: language.value, original: lastGeneratedText, corrected: text.value, ticketId: context.ticketId }) });
+      const response = await fetch(API_URL.replace(/\/copilot$/, "/feedback"), { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${API_TOKEN}` }, body: JSON.stringify({ action: "copilot_edit", language: language.value, original: lastGeneratedText, corrected: text.value, ticketId: context.ticketId }) });
       const data = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(data.error || "Korrektur konnte nicht gespeichert werden.");
       setStatus("Korrektur gespeichert und zur Prüfung vorgemerkt.");

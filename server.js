@@ -18,6 +18,20 @@ function getOpenAIClient() {
 app.use(cors());
 app.use(express.json({ limit: "100kb" }));
 
+const requestCounts = new Map();
+function requireApiToken(req, res, next) {
+  const configured = process.env.COPILOT_API_TOKEN;
+  if (!configured || req.get("authorization") !== `Bearer ${configured}`) return res.status(401).json({ error: "Unauthorized" });
+  const key = req.ip || "unknown";
+  const now = Date.now();
+  const current = requestCounts.get(key) || { started: now, count: 0 };
+  if (now - current.started > 60000) { current.started = now; current.count = 0; }
+  current.count += 1;
+  requestCounts.set(key, current);
+  if (current.count > 60) return res.status(429).json({ error: "Too many requests" });
+  next();
+}
+
 const LANGUAGES = { de: "German", fr: "French", it: "Italian", en: "English" };
 const SUPPORTED_ACTIONS = new Set([
   "summarize_ticket", "translate_summary", "reply_from_summary", "improve_text", "translate_text"
@@ -165,7 +179,7 @@ async function runPrompt(prompt, query) {
 
 app.get("/health", (req, res) => res.json({ ok: true, version: "2.0.0" }));
 
-app.post("/feedback", (req, res) => {
+app.post("/feedback", requireApiToken, (req, res) => {
   try {
     const { action, language, original, corrected, ticketId = "" } = req.body || {};
     if (!String(original || "").trim() || !String(corrected || "").trim()) return res.status(400).json({ error: "Original and corrected text are required" });
@@ -205,7 +219,7 @@ app.post("/feedback/review", (req, res) => {
   res.json({ ok: true, status });
 });
 
-app.post("/copilot", async (req, res) => {
+app.post("/copilot", requireApiToken, async (req, res) => {
   try {
     const { action, targetLanguage = "de", text = "", ticketId = "", requesterName = "" } = req.body || {};
     if (!SUPPORTED_ACTIONS.has(action)) return res.status(400).json({ error: "Invalid action" });

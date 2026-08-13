@@ -11,6 +11,10 @@ Required environment variables:
 - `ZENDESK_EMAIL`
 - `ZENDESK_API_TOKEN`
 - optional: `OPENAI_MODEL` (defaults to `gpt-5.4`)
+- `COPILOT_API_TOKEN` must match the token embedded in the private Zendesk app ZIP.
+- `FEEDBACK_REVIEW_TOKEN` protects the correction review API.
+
+The Copilot and feedback write endpoints reject requests without the bearer token and apply a per-IP rate limit. Rotate `COPILOT_API_TOKEN` by changing it in Render and rebuilding the private Zendesk ZIP with the same value in `assets/modal.js`.
 
 After pushing the branch connected to Render, confirm `GET /health` returns `{ "ok": true, "version": "2.0.0" }`.
 
