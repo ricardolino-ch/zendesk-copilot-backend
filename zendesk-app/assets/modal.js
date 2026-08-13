@@ -4,8 +4,9 @@
   const text = document.getElementById("text");
   const language = document.getElementById("language");
   const status = document.getElementById("status");
-  const controls = Array.from(document.querySelectorAll("button[data-action], #insert"));
+  const controls = Array.from(document.querySelectorAll("button[data-action], #insert, #save-feedback"));
   let context = null;
+  let lastGeneratedText = "";
 
   function setContext(value) {
     context = value;
@@ -36,7 +37,7 @@
     const action = button.dataset.action;
     const labels = { summarize_ticket: "Zusammenfassung wird erstellt …", reply_from_summary: "Antwort wird erstellt …", translate_summary: "Zusammenfassung wird übersetzt …", improve_text: "Text wird verbessert …", translate_text: "Text wird übersetzt …" };
     setBusy(labels[action]);
-    try { text.value = await call(action); setStatus("Fertig."); } catch (error) { setStatus(error.message, true); }
+    try { text.value = await call(action); lastGeneratedText = text.value; setStatus("Fertig."); } catch (error) { setStatus(error.message, true); }
   }));
   document.getElementById("insert").addEventListener("click", async () => {
     try {
@@ -54,6 +55,16 @@
         }
       }
       throw new Error("Sicherheitsprüfung fehlgeschlagen: Der passende Ticket-Editor wurde nicht gefunden. Es wurde nichts eingefügt.");
+    } catch (error) { setStatus(error.message, true); }
+  });
+  document.getElementById("save-feedback").addEventListener("click", async () => {
+    try {
+      if (!context || !lastGeneratedText || !text.value.trim()) throw new Error("Bitte zuerst einen Entwurf erzeugen und korrigieren.");
+      setBusy("Korrektur wird zur Prüfung gespeichert …");
+      const response = await fetch(API_URL.replace(/\/copilot$/, "/feedback"), { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "copilot_edit", language: language.value, original: lastGeneratedText, corrected: text.value, ticketId: context.ticketId }) });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(data.error || "Korrektur konnte nicht gespeichert werden.");
+      setStatus("Korrektur gespeichert und zur Prüfung vorgemerkt.");
     } catch (error) { setStatus(error.message, true); }
   });
   async function closeCopilot() {

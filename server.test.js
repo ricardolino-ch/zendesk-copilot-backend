@@ -29,3 +29,9 @@ test("Ricardo system prompt is loaded", () => {
   assert.match(prompt, /ausschliesslich Antwortentwürfe/);
   assert.match(prompt, /Vermute niemals Artikelnummern/);
 });
+
+test("approved knowledge pack is available", () => {
+  const pack = fs.readFileSync("./knowledge-pack.md", "utf8");
+  assert.match(pack, /Ricardo Wissenspaket/);
+  assert.match(pack, /Käuferschutz/);
+});

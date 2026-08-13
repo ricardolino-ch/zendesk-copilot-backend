@@ -23,6 +23,9 @@ const SUPPORTED_ACTIONS = new Set([
   "summarize_ticket", "translate_summary", "reply_from_summary", "improve_text", "translate_text"
 ]);
 const SYSTEM_PROMPT = fs.readFileSync(path.join(__dirname, "systemprompt.txt"), "utf8").trim();
+const KNOWLEDGE_PACK = fs.readFileSync(path.join(__dirname, "knowledge-pack.md"), "utf8").trim();
+const FEEDBACK_DIR = path.join(__dirname, "feedback");
+const FEEDBACK_FILE = path.join(FEEDBACK_DIR, "pending.jsonl");
 
 function getLanguageName(code) {
   return LANGUAGES[code] || LANGUAGES.de;
@@ -107,12 +110,23 @@ function promptFor({ action, targetLanguage, text, requesterName, ticketContext 
 async function runPrompt(prompt) {
   const response = await getOpenAIClient().responses.create({
     model: process.env.OPENAI_MODEL || "gpt-5.4",
-    input: `${SYSTEM_PROMPT}\n\nZusätzliche verbindliche Vorgabe: Schreibe die konkrete Aufgabe vollständig in der vom Auftrag verlangten Zielsprache.\n\nAUFGABE:\n${prompt}`
+    input: `${SYSTEM_PROMPT}\n\nVERBINDLICHE FREIGEGEBENE WISSENSBASIS:\n${KNOWLEDGE_PACK}\n\nZusätzliche verbindliche Vorgabe: Schreibe die konkrete Aufgabe vollständig in der vom Auftrag verlangten Zielsprache. Verwende die Wissensbasis nur, wenn sie zum Ticket passt. Bei Widerspruch oder fehlender Grundlage keine Regel erfinden.\n\nAUFGABE:\n${prompt}`
   });
   return String(response.output_text || "").trim();
 }
 
 app.get("/health", (req, res) => res.json({ ok: true, version: "2.0.0" }));
+
+app.post("/feedback", (req, res) => {
+  try {
+    const { action, language, original, corrected, ticketId = "" } = req.body || {};
+    if (!String(original || "").trim() || !String(corrected || "").trim()) return res.status(400).json({ error: "Original and corrected text are required" });
+    if (String(original).length > 20000 || String(corrected).length > 20000) return res.status(400).json({ error: "Feedback is too long" });
+    fs.mkdirSync(FEEDBACK_DIR, { recursive: true });
+    fs.appendFileSync(FEEDBACK_FILE, `${JSON.stringify({ status: "pending", createdAt: new Date().toISOString(), action: String(action || "unknown"), language: String(language || "de"), ticketId: /^\\d+$/.test(String(ticketId)) ? String(ticketId) : "", original: String(original), corrected: String(corrected) })}\n`, "utf8");
+    res.status(202).json({ ok: true, status: "pending" });
+  } catch (error) { res.status(500).json({ error: "Feedback could not be saved" }); }
+});
 
 app.post("/copilot", async (req, res) => {
   try {
