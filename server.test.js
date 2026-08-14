@@ -68,7 +68,7 @@ test("ticket prompt prioritizes the current customer question", () => {
 
 test("reply prompt separates evidence from internal guidance", () => {
   const source = fs.readFileSync("./server.js", "utf8");
-  assert.match(source, /INTERNAL AGENT HINT \(HIGH PRIORITY\)/);
+  assert.match(source, /INTERNAL AGENT HINT RULES/);
   assert.match(source, /distinguish clearly between an amount shown on a label/);
   assert.match(source, /Respond directly, naturally and personally/);
 });
