@@ -1,0 +1,171 @@
+
+
+===== PAGE 1 =====
+11 - Telefonieren
+Published date: 08.08.2025
+
+===== PAGE 2 =====
+Course Overview
+1. Aircall
+ Video-Anleitung
+ Frage 1
+ Schluss
+2. Tipps & Tricks am Telefon
+ 📞 Allgemeine Regeln bei telefonischen Anfragen
+ Telefontraining
+ Gesprächsablauf
+ Telefonfloskeln umgehen - Übung 1
+ Telefonfloskeln umgehen - Übung 2
+ Telefonfloskeln umgehen - Übung 3
+ Telefonfloskeln umgehen - Übung 4
+ Frage 5
+ Frage 6
+ Abschluss
+
+===== PAGE 3 =====
+Section 1 of 2
+Aircall
+Video-Anleitung
+Wo finde ich Aircall?
+URL: Im Zendesk oben rechts
+Login: Per E-Mail erhalten
+
+Video is not available in pdf version
+
+===== PAGE 4 =====
+Frage 1
+True False
+Die ausgehende Telefonnummer sollte immer Outbound Nummer ange
+wählt sein.
+Sobald es klingelt wird automatisch genommen und ihr seit am Telefon.
+Sobald ein Anruf abgenommen wurde, wird ein Ticket eröffnet mit diese
+m Konto, wenn er von der hinterlegten Telefonnummer anruft.
+Sobald der Anruf fertig ist und ihr auflegt, könnt ihr einen Grund auswä
+hlen.
+Die Zufriedenheitsumfrage für das Telefon wird automatisch versendet.
+Die To Do Liste kann man löschen.
+Die To Do Liste muss bearbeitet werden. Den Grund prüfen für den ver
+passten Anruf, wenn niemand verfügbar war zurückrufen.
+Outbound-Anrufe werden aufgenommen
+Inbound-Anrufe werden aufgenommen.
+
+===== PAGE 5 =====
+Schluss
+Herzlichen Glückwunsch! Du solltest den Inhalt dieses Kurses nun
+beherrschen.
+End of Section 1
+
+===== PAGE 6 =====
+Section 2 of 2
+Tipps & Tricks am Telefon
+
+===== PAGE 7 =====
+📞
+Allgemeine Regeln bei telefonischen
+Anfragen
+⏱ Reaktionszeit
+Jeder Anruf muss innerhalb von 10 Sekunden angenommen werden.
+ℹ Informationsweitergabe
+✅ Allgemeine Auskünfte
+Dürfen immer gegeben werden.
+Keine Identifikation nötig, auch nicht von der registrierten E-Mail-Adresse
+🔐 Kontobezogene Auskünfte
+Nur erlaubt, wenn das Mitglied eindeutig identifiziert wurde:
+Anruf erfolgt von der im Konto hinterlegten Telefonnummer
+Oder: Rückruf an hinterlegte Telefonnummer
+Auskünfte dürfen ausschliesslich dem Kontoinhaber erteilt werden.
+→ Keine Weitergabe an Dritte (z. B. Ehepartner, Geschwister), selbst wenn diese das
+Passwort kennen.
+❗ Ausnahme:
+Wenn der Kontoinhaber am Telefon explizit sein Einverständnis gibt, kann eine
+Ausnahme gemacht werden
+☎ Rückrufe
+Wenn ein Mitglied einen Rückruf wünscht, wird dieser durchgeführt.
+Beim Rückruf zuerst fragen:→ „Haben Sie gerade Zeit, um das Anliegen zu
+besprechen?“→ Falls nicht: Rückruftermin vereinbaren und einhalten.
+
+===== PAGE 8 =====
+✉ Nach dem Gespräch
+Keine E-Mail-Bestätigung nach dem Telefonat, ausser das Mitglied verlangt es
+explizit.
+🗂 Gesprächsführung
+Gespräche müssen gemäss Gesprächsbogen „Qualitätssicherung Telefon“ geführt
+werden.
+Telefontraining
+Telefontraining
+Document is not available in PDF version
+Gesprächsablauf
+Hier seht ihr, wie das Gespräch ablaufen sollte.
+Dies ist auch direkt der Qualitätsbogen für Anrufe. Nach diesen Kriterien werdet ihr
+beurteilt.
+
+===== PAGE 9 =====
+
+Embedded content is not available in PDF.
+Please use the link below to view the content.
+https://docs.google.com/spreadsheets/d/1h75yHU_mT5UQo_I3XJj11_87LxQQmd1T32CKaB
+qWNbg/edit#gid=1232316797
+Telefonfloskeln umgehen - Übung 1
+Answer options for numbered inputs below:
+1 a) "Sind Sie noch da?" b) "vielen Dank fürs Warten"
+Mitglied aus der Warteschlaufe zurückholen:
+Herr Muster, 1:
+
+===== PAGE 10 =====
+Telefonfloskeln umgehen - Übung 2
+Answer options for numbered inputs below:
+1 a) "Wie war Ihr Name? / Wie isch b) "Können Sie mir bitte
+Ihre Name gsi?" (nochmals) Ihren Namen
+nennen?"
+Name nicht verstanden, nicht gesagt, nicht gehört:
+1:
+Telefonfloskeln umgehen - Übung 3
+Answer options for numbered inputs below:
+1 a) "Sagen Sie mir schnell Ihre b) "Können Sie mir bitte Ihren
+Kundennummer / Ihren Benutzernamen angeben?"
+Benutzernamen / Ihren Namen /
+die Artikelnummer."
+Kundennummer / Ihren Benutzernamen / Ihren Namen / die Artikelnummer erfragen:
+1:
+
+===== PAGE 11 =====
+Telefonfloskeln umgehen - Übung 4
+Answer options for numbered inputs below:
+1 a) "Oh, Sie, dafür bin ich nicht b) "Einen kleinen Moment bitte,
+zuständig." Herr Muster, Ich kläre das gerne
+bei der zuständigen Abteilung ab
+und werde Sie anschliessend
+informieren."
+Frage ausserhalb des eigenen Zuständigkeitsbereichs:
+1:
+
+===== PAGE 12 =====
+Frage 5
+Welche Aussage ist richtig, welche Aussage ist falsch?
+True False
+Wenn das Mitglied nicht von der hinterlegten Telefonnummer anruft, fr
+age ich zur Sicherheit nach dem Passwort.
+Der Kontoinhaber ist verhindert. Die Frau ruft an, ich darf Auskunft geb
+en.
+Das Anliegen sollte innerhalb von 3 Minuten gelöst sein.
+Ich logge mich am Telefon ein, sobald meine Telefonschicht beginnt.
+Der Name ist zu kompliziert, ich lasse es einfach sein, bevor ich was Fal
+sches sage.
+
+===== PAGE 13 =====
+Frage 6
+Welche Aussagen sind korrekt?
+Am Telefon soll man so schnell wie möglich sprechen, damit man nic
+ht zu viel Zeit verliert.
+Ein Lächeln in der Stimme hört man durchs Telefon.
+Die eigene Einstellung ist wichtig, um ein gutes Telefonat führen zu k
+önnen.
+Ein Anruf nehme ich mit: "Ricardo, wie kann ich Ihnen helfen" entgeg
+en.
+Kompliziert, Problem und teuer sind Reizwörter.
+Der Kunde ist immer König
+Der Kunde ist König, solang er sich auch so benimmt.
+Abschluss
+Gratuliere, du hast den Kurs "Tipps & Tricks am
+Telefon" überstanden!
+End of Section 2

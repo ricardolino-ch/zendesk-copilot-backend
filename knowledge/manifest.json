@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "language": "de-CH",
+  "draft_only": true,
+  "documents": [
+    {"file": "_common/response-style.md", "tags": ["stil", "anrede", "abschluss"], "status": "approved"},
+    {"file": "_common/corporate-wording.md", "tags": ["sprache", "terminologie"], "status": "approved"},
+    {"file": "_common/quality-checklist.md", "tags": ["qualität", "datenschutz"], "status": "approved"},
+    {"file": "_common/user-confirmed-rules.md", "tags": ["bestätigt", "prozess", "antwortstil", "kulanz"], "status": "approved"},
+    {"file": "_common/missing-source-links.md", "tags": ["quellen", "easygenerator", "externe-dokumente"], "status": "draft"},
+    {"file": "easy/macro-catalog.md", "tags": ["makro", "routing"], "status": "approved"},
+    {"file": "easy/2fa.md", "tags": ["2fa", "reset"], "status": "approved"},
+    {"file": "easy/user-details.md", "tags": ["benutzerangaben", "iban"], "status": "approved"},
+    {"file": "easy/securityflow.md", "tags": ["suspicious", "sms"], "status": "approved"},
+    {"file": "easy/sms-verification-support.md", "tags": ["sms", "verifizierung", "admin-prozess"], "status": "approved"},
+    {"file": "easy/first-problems.md", "tags": ["registrierung", "login", "telefonnummer"], "status": "approved"},
+    {"file": "easy/registration-and-verification.md", "tags": ["registrierung", "aktivierung"], "status": "approved"},
+    {"file": "easy/account-cancellation.md", "tags": ["konto", "löschung"], "status": "approved"},
+    {"file": "blocked/blocked.md", "tags": ["sperre", "aktivierungscode", "billing"], "status": "approved"},
+    {"file": "buy-sell/decision-rules.md", "tags": ["kaufvertrag", "stornierung", "datenschutz"], "status": "approved"},
+    {"file": "buy-sell/decision-rule-contact-before-purchase.md", "tags": ["besichtigung", "qa", "kontakt"], "status": "approved"},
+    {"file": "buy-sell/buy-sell-cancel-outline.md", "tags": ["kaufen", "verkaufen", "stornierung"], "status": "partial"},
+    {"file": "buy-sell/payment-status-seller.md", "tags": ["zahlung", "käuferschutz+", "versand"], "status": "approved"},
+    {"file": "buy-sell/käuferschutz-plus-flow.md", "tags": ["käuferschutz+", "moneyguard", "dispute", "auszahlung", "stornierung"], "status": "draft"},
+    {"file": "buy-sell/ratings.md", "tags": ["bewertung", "löschung"], "status": "approved"},
+    {"file": "fees/fees.md", "tags": ["gebühren", "zahlung", "inkasso"], "status": "approved"},
+    {"file": "easygenerator-course-index.md", "tags": ["easygenerator", "prozesse", "fristen", "screenshots"], "status": "draft"},
+    {"file": "bugs/bugs.md", "tags": ["bug", "incident", "workaround"], "status": "approved"},
+    {"file": "_historical/historical-30d-batch1.md", "tags": ["historisch", "use-cases"], "status": "draft"},
+    {"file": "_historical/solved-7d-batch1.md", "tags": ["historisch", "gelöst", "use-cases"], "status": "draft"},
+    {"file": "_historical/solved-7d-batch2.md", "tags": ["historisch", "gelöst", "sicherheit", "streitfälle"], "status": "draft"},
+    {"file": "_historical/solved-7d-batch3.md", "tags": ["historisch", "gelöst", "käuferschutz", "inkasso"], "status": "draft"},
+    {"file": "_historical/solved-7d-batch4.md", "tags": ["historisch", "gelöst", "phishing", "2fa", "gebühren"], "status": "draft"}
+    ,{"file": "_historical/solved-7d-batch5.md", "tags": ["historisch", "gelöst", "moneyguard", "kontosicherheit", "mwst"], "status": "draft"}
+  ]
+}

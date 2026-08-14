@@ -1,0 +1,803 @@
+
+
+===== PAGE 1 =====
+07 - R - Käuferschutz+
+Published date: 04.08.2026
+
+===== PAGE 2 =====
+Course Overview
+1. Allgemein
+ Was ist Käuferschutz+
+ Bedingungen für Käuferschutz+
+ Kosten Käuferschutz+
+ Allgemeine Information für die Bearbeitung
+ Wo sieht man, wann man Käuferschutz+ aktiviert/deaktiviert hat?
+2. Der Käuferschutz+ Ablauf
+ MoneyGuard Ablauf vom Kauf bis zum Erhalt des bezahlten Betrages
+ Fristenliste
+3. Verkaufen mit Käuferschutz+
+ Vorteile für einen geschützten Verkauf via MoneyGuard
+ Wie aktiviere ich MoneyGuard für meine Verkäufe?
+ Nicht möglich MoneyGuard zu aktivieren, weshalb?
+
+===== PAGE 3 =====
+4. Tools - Käuferschutz+
+ Wie erkenne ich MoneyGuard bei Angeboten oder im Admin
+ Adyen wo suche ich was? (Nur wichtig, wenn du Disputes bearbeitest)
+ Übersetzungstools
+5. Use Case aus Käufersicht
+ Der Käufer hat direkt dem Verkäufer bezahlt.
+Der Käufer hat mehrere Artikel beim selben Verkäufer gekauft, nun
+
+wird jedes mal Porto verlangt.
+Der Käufer hat den Artikel direkt beim Verkäufer abgeholt, und auch
+
+direkt bar bezahlt.
+Der Käufer hat den Artikel direkt beim Verkäufer abgeholt, jedoch via
+
+MoneyGuard bezahlt.
+Der Käufer meldet, kein Artikel erhalten zu haben, Verkäufer hat ihn
+
+jedoch als versendet markiert.
+Der Käufer sagt, dass der Verkäufer ihm mitgeteilt hat, keine Zahlung
+
+erhalten zu haben, obwohl bezahlt.
+Der Käufer meldet, er kann den Erhalt nicht bestätigen, hat den Artikel
+
+jedoch bereits bezahlt/erhalten
+Der Käufer meldet, dass er alle Artikel in einem Paket erhalten hat aber
+
+mehrmals Porto bezahlen musste.
+ Der Käufer meldet, dass er keine Kreditkarte und kein Twint besitzt
+ Wieso sind die Kontaktangaben des Verkäufers nicht ersichtlich?
+
+===== PAGE 4 =====
+6. Use Case aus Verkäufersicht
+ Der Verkäufer will MoneyGuard deaktivieren
+ Transaktion wurde automatisch storniert
+Der Verkäufer hat kein Geld erhalten, der Käufer teilt aber mit bezahlt
+
+zu haben.
+Verkäufer kann den Artikel nicht als bezahlt markieren, obwohl er
+
+Zahlung erhalten hat.
+Verkäufer ist in den Ferien und kann nicht innert 10 Tagen liefern, was
+
+nun?
+Verkäufer meldet, dass der Käufer den Artikel abgeholt hat, jedoch
+
+bereits via MoneyGuard bezahlt hat.
+Verkäufer meldet, dass der Käufer den Artikel abgeholt hat und bar
+
+vor Ort bezahlt hat.
+ Der Verkäufer fragt, wann er die Auszahlung erhalten wird.
+Der Verkäufer reklamiert, dass er seine Auszahlung nicht erhalten hat
+
+(KYC)
+7. KYC (Onfido)
+ Erklärung und Überprüfung der Dokumente in Onfido
+ Schluss
+
+===== PAGE 5 =====
+8. Disputes / Problemfälle
+ Dispute Ablauf
+ Allgemeines zu den Diputes / Streifällen
+ Streitfall annehmen und Transaktion stornieren
+ Streitfall ablehnen
+9. Use Case Disput / Problemfälle
+ Der Verkäufer hat kein Artikel geliefert
+ Der Käufer behauptet eine Fälschung erhalten zu haben
+
+===== PAGE 6 =====
+Section 1 of 9
+Allgemein
+Was ist Käuferschutz+
+MoneyGuard ist ein Bezahlsystem, bei dem Käufer mit TWINT oder Kreditkarte zahlen
+können. Nachdem der Käufer bezahlt hat, wird der Betrag bei Ricardo "parkiert" und der
+Verkäufer wird informiert. Der Verkäufer versendet das Paket. Sobald der Käufer den
+Artikel erhält und bestätigt, dass alles in Ordnung ist, wird der Betrag an den Verkäufer
+überwiesen. Wenn es Probleme gibt, kann der Käufer einen Streitfall eröffnen.
+Weitere Informationen findest du hier:
+https://help.ricardo.ch/hc/de/articles/11705673253916-Was-ist-der-MoneyGuard-
+Schutz
+Bedingungen für Käuferschutz+
+Die Bedingungen damit du MoneyGuard aktivieren kannst:
+https://help.ricardo.ch/hc/de/articles/11706288346780-Was-sind-die-Bedingungen-
+f%C3%BCr-MoneyGuard
+Kosten Käuferschutz+
+Alles zu den Kosten für MoneyGuard findest du hier:
+https://help.ricardo.ch/hc/de/articles/11706179687452-Wie-viel-kostet-MoneyGuard-
+und-wer-bezahlt
+
+===== PAGE 7 =====
+Allgemeine Information für die Bearbeitung
+Wir bearbeiten alle Kundenanfragen in Deutsch, Französisch, Englisch und Italienisch.
+Wir nehmen dazu ChatGPT und Linguist zur Hilfe. Dies ist im Kapitel "Admin / Adyen -
+MoneyGuard"
+Mit Linguist kannst du den Text des Mitglieds direkt im Zendesk übersetzten und mit
+ChatGPT deine Antwort von Deutsch auf die gewünschte Sprache übersetzten.
+Die Makros sind alle dynamisch. Das heisst, die werde direkt in die korrekte Sprache
+übersetzt. Wichtig dabei ist, dass die korrekte Sprache im Ticket rechts gewählt ist.
+Ein dediziertes Team bearbeitet die Streitfälle/Disputs.
+Kontaktdaten der Gegenpartei
+Ein Käufer von MoneyGuard sieht beim Artikel die Kontaktangaben des Verkäufers erst,
+nachdem der Artikel bezahlt wurde.
+Damit wollen wir verhindern, dass der Käufer den Verkäufer kontaktiert und ausserhalb
+von MoneyGuard bezahlt.
+Wichtig:
+Bei MoneyGuard Transaktionen nie die Kontaktdaten der Gegenpartei bekannt geben,
+bevor der Käufer bezahlt hat. Danach sieht er sie selbst. Das ist sehr wichtig, da wir
+sonst wieder Reklamationen erhalten, dass die Transaktion nicht abgeschlossen werden
+kann.
+Wo sieht man, wann man Käuferschutz+
+aktiviert/deaktiviert hat?
+Im Benutzerkonto unter Profile kann man sehen, ob das Mitglied MoneyGuard aktiviert
+hat. Auch kann man direkt darauf klicken und kommt direkt ins Adyen.
+
+===== PAGE 8 =====
+Im Member Log kann man mit "Field" sortieren, wenn man da "UNKNOWN" anwählt,
+sieht man wann das Mitglied MoneyGuard aktiviert/deaktiviert hat.
+
+===== PAGE 9 =====
+So sieht der Logeintrag aus, wenn man So sieht der Logeintrag aus, wenn man
+MoneyGuard aktiviert. MoneyGuard deaktiviert.
+Sobald ein Mitglied MoneyGuard aktiviert, werden alle offenen Angebote die die
+Bedingungen erfüllen zu MoneyGuard Angeboten. MoneyGuard wird direkt bei den
+bestehenden Angeboten aktiviert.
+End of Section 1
+
+===== PAGE 10 =====
+Section 2 of 9
+Der Käuferschutz+ Ablauf
+MoneyGuard Ablauf vom Kauf bis zum Erhalt des
+bezahlten Betrages
+Hier kannst du den ganzen Ablauf von MoneyGuard sehen. Vom Kauf des Artikels bis
+zum Erhalt des bezahlten Betrages.
+
+Embedded content is not available in PDF.
+Please use the link below to view the content.
+https://miro.com/app/board/uXjVKYb5Kjs=/?share_link_id=953144585073
+Fristenliste
+ Käufer Zeit zu Bezahlen
+Hier gibt es grundsätzlich keine Frist. Wir teilen aber ganz normal mit, dass der
+Käufer 14 Tage Zeit hat den Artikel zu bezahlen. Sollte ein Verkäufer nichts vom
+Käufer hören, kann dieser normal eine Stornierung einreichen, nach abgelaufener
+Frist.
+
+===== PAGE 11 =====
+ Verkäufer Zeit zu liefern
+Nach erfolgter Zahlung hat der Verkäufer eigentlich 7 Tage Zeit den Artikel zu
+liefern. Wir geben aber zu den 7 Tagen noch einen Puffer von 3 Tagen. Somit hat der
+Verkäufer 10 Tage Zeit, um zu liefern. Liefert der Verkäufer innerhalb von diesen 10
+Tagen nicht, erhält der Käufer automatisch zwei Buttons unter "Gekauft":
+Alles gut
+Problemfall eröffnen
+Der Käufer wird aufgefordert mitzuteilen, ob er den Artikel erhalten hat oder nicht.
+ Verkäufer muss den Artikel als versendet markieren
+Wenn der Verkäufer das Paket nicht mit dem Ricardo Etikett versendet, muss er den
+Versand markieren in seinem "Mein Verkaufen" -> "Verkauft", 4 Tagen nach erfolgter
+Zahlung wird der Verkäufer daran erinnert, falls er es vergessen hat.
+ Käufer Zeit, um den Erhalt zu bestätigen
+Nach der Mitteilung vom Verkäufer, dass er den Artikel verschickt hat, hat der
+Käufer 4 Tage Zeit den Artikel als erhalten zu markieren. Markiert er den Erhalt
+nicht, wird nach 4 Tagen der Artikel automatisch als erhalten markiert.
+ Käufer Zeit, um den Artikel als in Ordnung zu markieren
+Sobald der Käufer den Artikel erhalten hat, hat dieser 3 Tage Zeit den Artikel zu
+überprüfen und als erhalten zu markieren. Sollte der Artikel nicht sein wie
+beschrieben, muss der Käufer innerhalb dieser 3 Tage ein Streitfall einreichen.
+Macht der Käufer nichts innerhalb der 3 Tage wird der Artikel automatisch als in
+Ordnung markiert und dem Verkäufer wird das Geld ausbezahlt.
+ Dauer, bis der Verkäufer anschliessend das Geld erhält
+Sobald die Transaktion abgeschlossen ist, wird Adyen den Betrag innerhalb 2-3
+Arbeitstage dem Verkäufer überweisen.
+ 25 Tage nach Zahlung nichts erhalten und nicht reagiert
+
+===== PAGE 12 =====
+Falls der Käufer bis dahin nicht reagiert hat, erhält er eine zweite E-Mail mit
+folgender Information:
+• Erneute Aufforderung zur Bestätigung, ob der Artikel angekommen ist
+• Hinweis: In 5 Tagen wird der Betrag an den Verkäufer ausbezahlt, wenn keine
+Reaktion erfolgt
+• Es ist die letzte Gelegenheit, einen Problemfall zu melden
+ 30 Tage nach Zahlung nicht erhalten und nicht reagiert
+Der Betrag wird dem Verkäufer ausbezahlt, weil der Käufer nicht reagiert hat.
+End of Section 2
+
+===== PAGE 13 =====
+Section 3 of 9
+Verkaufen mit Käuferschutz+
+Vorteile für einen geschützten Verkauf via
+MoneyGuard
+Alle Vorteile über den geschützten Verkauf via MoneyGuard findest du hier:
+https://help.ricardo.ch/hc/de/articles/11767051780508-Welche-Vorteile-bietet-ein-von-
+MoneyGuard-gesch%C3%BCtzter-Verkauf
+Wie aktiviere ich MoneyGuard für meine
+Verkäufe?
+So kannst du MoneyGuard für deine Verkäufe aktivieren:
+https://help.ricardo.ch/hc/de/articles/11765320870428-Wie-aktiviere-ich-MoneyGuard-
+f%C3%BCr-meine-Verk%C3%A4ufe
+
+===== PAGE 14 =====
+Nicht möglich MoneyGuard zu aktivieren,
+weshalb?
+Nicht möglich, MoneyGuard zu aktivieren, weshalb?
+Dies kann mehrere Gründe haben, und zwar folgende:
+Mitglied hatte bereits mal MoneyGuard aktiviert
+In diesem Fall kann sich das Mitglied nicht selbst wieder aktivieren. Dies müssen wir
+vom Kundendienst für sie übernehmen. Dies machen wir direkt im Admin. Wir öffnen
+das Mitglied, klicken auf den Benutzernamen und wählen unter "Profile" den Button "Re-
+onboard to MG" an. Im Bild oben sehen wir in Grau, dass MoneyGuard_ Deactivated ist.
+Dies ist ein klares Zeichen, dass er es deshalb selbst nicht wieder aktivieren kann.
+Anschliessend ist beim Mitglied MoneyGuard wieder aktiviert.
+IBAN Konto lautet nicht auf den Kontoinhaber
+Wenn das IBAN-Konto nicht auf den Kontoinhaber lautet, ist eine Anmeldung bei
+MoneyGuard nicht möglich.
+End of Section 3
+
+===== PAGE 15 =====
+
+
+===== PAGE 16 =====
+Section 4 of 9
+Tools - Käuferschutz+
+Wie erkenne ich MoneyGuard bei Angeboten
+oder im Admin
+Eine MoneyGuard Transaktion erkennst du entweder direkt auf der Artikelseite wenn
+rechts unter dem Preis steht inkl. Versandkosten und MoneyGuard. oder bei uns unter
+Orders, wenn bei der Transaktion rechts verschiedene Buttons erscheinen und unter
+dem Foto das MoneyGuard Logo:
+
+===== PAGE 17 =====
+Im Status kann man jeweils gut sehen, was bereits passiert ist und was noch nicht.
+Hier sieht man folgendes:
+Paid grün -> Artikel bezahlt
+Shipped grün -> Artikel versendet
+Delivered by Swiss Post grün -> Artikel geliefert mit der Post
+Money unlocked grün -> Betrag freigegeben
+Delivering money to seller orange -> wurde noch nicht an den Verkäufer überwiesen
+So sieht man auf den ersten Blick, wenn sich z.B, der Verkäufer sich bei uns meldet und
+mitteilt, er habe kein Geld erhalten. Dann sehen wir Paid grün, somit ging das Geld bei
+Adyen ein und er ist jetzt am Zug mit liefern.
+
+===== PAGE 18 =====
+Adyen wo suche ich was? (Nur wichtig, wenn du
+Disputes bearbeitest)
+Adyen ist unser Zahlungspartner und ist aus Holland. Somit erhalten die Verkäufer auch
+die Zahlungen von Adyen aus der Niederlande. Dies ist jeweils noch gut zu wissen, weil
+wir sehen, die Zahlung ist an den Verkäufer raus, er teilt uns aber mit nichts erhalten zu
+haben.
+Wenn wir dann jeweils sagen, Sie erhalten die Zahlung von unserem Zahlungspartner
+Adyen aus der Niederlande, finden es die Mitglieder jeweils. Weil sie wahrscheinlich
+Zahlungen von Ricardo suchen.
+Adyen findet ihr in unserem Dashboard. Loggt euch mit eurem Okta Login ein und dann
+erscheint das Adyen Logo.
+
+===== PAGE 19 =====
+oder man klickt unter "Profile" direkt auf "MoneyGuard: Activated", dann kommt man
+auch direkt auf sein Benutzerkonto im Adyen. (Wichtig man muss sich zuerst via
+Dashboard im Adyen eingeloggt haben)
+
+===== PAGE 20 =====
+Wenn man prüfen muss, ob eine Zahlung beim Zahlungspartner Adyen eingegangen ist
+oder wir eine Rückzahlung an den Käufer machen müssen, machen wir wie folgt.
+Wir suchen mit der Order Nummer und geben diese in der Suche ein.
+Um zu prüfen, ob das Konto des Verkäufers in Ordnung ist oder die Überweisung
+funktioniert hat, sieht man direkt, wenn man unter "Profile" auf "MoneyGuard:
+Aktivated" klickt, dann öffnet sich nämlich das Adyen Konto von diesem Mitglied.
+
+===== PAGE 21 =====
+Übersetzungstools
+Um die Übersetzungen vorzunehmen, arbeiten wir mit ChatGPT. Hier kannst du den
+Text auf Deutsch eingeben und sagen, auf welche Sprache der Text übersetzt werden
+soll.
+Hier kannst du dich registrieren und einloggen:
+https://chatgpt.com/auth/login
+Um die Anfragen direkt im Zendesk übersetzten zu lassen, laden wir im Chrom eine
+Erweiterung "Linguist" herunter. Dies machst du, indem du
+1. Im Chrome Browser auf das Icon klickst, wo die Nr. 1 steht. Anschliessend klickt man
+auf Erweiterungen verwalten.
+2. Klickt man auf Chrome Web Store.
+
+===== PAGE 22 =====
+3. In der Suche geben wir Linguist ein, klickt auf Enter und die Erweiterung erscheint.
+4. Wir klicken auf die Linguist - Websteiten-Übersetzer.
+
+===== PAGE 23 =====
+5. Jetzt klicken wir auf den Button "Hinzufügen.
+6. Anschliessend auf den Button "Erweiterung hinzufügen".
+7. Jetzt ist es bei dir installiert und du kannst es noch anpingen, indem du nochmals auf
+das "Erweiterungs-Icon" klickst.
+
+===== PAGE 24 =====
+End of Section 4
+
+===== PAGE 25 =====
+Section 5 of 9
+Use Case aus Käufersicht
+Der Käufer hat direkt dem Verkäufer bezahlt.
+In diesem Fall kann die Transaktion nicht über MoneyGuard abgeschlossen werden, es
+seit denn, der Käufer bezahlt erneut über unser System und der Verkäufer erstattet dem
+Käufer die Direktzahlung zurück.
+Ansonsten bleibt die Transaktion einfach “offen” und kann nicht abgeschlossen werden
+im Benutzerkonto.
+Makro für: Makro heisst:
+Wenn der Käufer direkt an den Käufer hat direkt an Verkäufer
+Verkäufer bezahlt hat. bezahlt
+
+===== PAGE 26 =====
+Der Käufer hat mehrere Artikel beim selben
+Verkäufer gekauft, nun wird jedes mal Porto
+verlangt.
+Entweder versendet der Verkäufer jeden Artikel Einzel oder der Käufer nimmt
+umgehend mit dem Verkäufer Kontakt auf und sie einigen sich auf die Rückerstattung,
+sobald der Verkäufer das Geld ausbezahlt erhalten hat.
+Das Einfachste ist, dass der Käufer alle Artikel Einzel bezahlt und der Verkäufer die zu
+viel bezahlten Lieferkosten zurück überweist, sobald er das Geld erhalten hat.
+Besser noch wäre, man würde dies vor dem Kauf bereits via Fragen und Antworten
+untereinander klären, aber meisten ist dies den Mitgliedern im Vorhinein noch gar nicht
+bewusst.
+Makro für: Makro heisst:
+falls der Käufer mehrere Artikel Mehrere Artikel beim gleichen
+beim selben Verkäufer gekauft hat. Verkäufer gekauft
+Der Käufer hat den Artikel direkt beim Verkäufer
+abgeholt, und auch direkt bar bezahlt.
+In diesem Fall ist es so, dass die Transaktion einfach offen bleibt beim Käufer und
+Verkäufer. Ein Anrecht auf eine Stornierung hat der Verkäufer nicht. Wir können den
+Artikel nicht als bezahlt markieren. Deshalb bleibt dies einfach bestehen.
+In so einem Fall bitte jeweils mitteilen, dass Sie es doch auch bei Abholung via System
+machen sollen. Direkt vor Ort via System mit TWINT bezahlen, übergeben, prüfen und
+als in Ordnung markieren. Dann ist es im System auch direkt abgeschlossen.
+
+===== PAGE 27 =====
+Der Käufer hat den Artikel direkt beim Verkäufer
+abgeholt, jedoch via MoneyGuard bezahlt.
+In diesem Fall sollte der Verkäufer den Artikel als versendet markieren. Der Käufer
+anschliessend den Artikel als erhalten und in Ordnung. Wenn das alles gemacht wurde,
+wird der bezahlte Betrag dem Verkäufer innert 2 bis 3 Arbeitstagen überwiesen.
+Der Käufer meldet, kein Artikel erhalten zu
+haben, Verkäufer hat ihn jedoch als versendet
+markiert.
+In diesem Fall raten wir dem Käufer an, einen Streitfall zu eröffnen. Denn der Artikel
+wird automatisch nach 4 Tagen als erhalten markiert und wenn dann innerhalb der 3
+Tagen kein Streitfall eröffnet wird, wird der Artikel als in Ordnung markiert und das
+Geld an den Verkäufer ausbezahlt.
+Also in solchen Fällen immer ein Streitfall eröffnen. Zurückziehen kann man ihn immer
+noch.
+
+===== PAGE 28 =====
+Der Käufer sagt, dass der Verkäufer ihm
+mitgeteilt hat, keine Zahlung erhalten zu haben,
+obwohl bezahlt.
+In diesem Fall hat der Verkäufer das System "MoneyGuard" nicht richtig verstanden. Der
+Verkäufer erhält von uns eine E-Mail und wird über die Zahlung informiert. Auch sieht
+er dies direkt unter seinen verkauften Artikeln.
+Wir werden in diesem Fall den Verkäufer anschreiben, ihm MoneyGuard erklären und
+bitten den Artikel umgehend zu versenden.
+Immer kurz prüfen, ob das Geld bezahlt wurde. Dies kann man unter Orders sehen,
+wenn das Paid grün ist oder im Adyen kann man es auch prüfen.
+Makro für: Makro heisst:
+An Käufer, der bezahlt hat und der
+Der Käufer hat bezahlt, Verkäufer
+Verkäufer mitteilt, nichts erhalten
+sagt nicht erhalten
+zu haben.
+An den Verkäufer, der mitgeteilt
+Der Käufer hat bezahlt, Verkäufer
+hat, dass er den Betrag nicht
+sagt nicht erhalten - Verkäufer
+erhalten hat.
+
+===== PAGE 29 =====
+Der Käufer meldet, er kann den Erhalt nicht
+bestätigen, hat den Artikel jedoch bereits
+bezahlt/erhalten
+In diesem Fall hat der Käufer den Artikel nicht via MoneyGuard Twint oder Kreditkarte
+bezahlt, sondern direkt an den Verkäufer. Aus diesem Grund besteht hat der Käufer
+keine Möglichkeit den Artikel als erhalten zu markieren.
+Ein solcher Artikel kann auch nicht als abgeschlossen markiert werden. In so einem Fall
+muss die Transaktion ausnahmsweise ausserhalb von Ricardo abgeschlossen werden.
+Der Verkauf bleibt jedoch "offen" in Ihrem Benutzerkonto bestehen und kann nicht
+abgeschlossen werden.
+Marko für: Marko heisst:
+Artikel wurde direkt an den Käufer hat direkt an den Verkäufer
+Verkäufer bezahlt bezahlt
+Der Käufer meldet, dass er alle Artikel in einem
+Paket erhalten hat aber mehrmals Porto bezahlen
+musste.
+In diesem Fall soll der Käufer direkt mit dem Verkäufer Kontakt aufnehmen. Der
+Verkäufer soll dem Käufer die zu viel bezahlten Lieferkosten zurückerstatten.
+Makro an den Käufer: Moneyguard - Der Verkäufer hat alles in einem Paket verschickt
+Reagiert der Verkäufer gar nicht auf die Meldungen des Käufers, können wir immer noch
+den Verkäufer anschreiben.
+
+===== PAGE 30 =====
+Der Käufer meldet, dass er keine Kreditkarte und
+kein Twint besitzt
+Die meisten Banken haben mittlerweile ihre Debitkarten auf VISA/MasterCard mit
+Onlinezahlung umgerüstet. Höchstwahrscheinlich haben Kunden also eine Möglichkeit
+online zu zahlen bereits im Portemonnaie. Es ist also keine klassische Kreditkarte mit
+Kreditrahmen notwendig, sondern eine Debitkarte mit Onlinezahlung reicht.
+Wieso sind die Kontaktangaben des Verkäufers
+nicht ersichtlich?
+Der Käufer von MoneyGuard Artikeln sieht die Kontaktangaben des Verkäufers erst,
+nachdem der Artikel bezahlt wurde (auf Web; Apps folgen noch). Damit soll verhindert
+werden, dass der Käufer den Verkäufer kontaktiert und ausserhalb von MoneyGuard
+bezahlt wird.
+
+===== PAGE 31 =====
+Die Ansicht für den Käufer, bevor er Die Ansicht für den Käufer, nachdem er
+bezahlt hat. bezahlt hat.
+Wichtig: Bitte bei MoneyGuard Transaktionen nie die Kontaktdaten der Gegenpartei
+bekannt geben, bevor der Käufer bezahlt hat. Danach sieht er sie selbst. Das ist sehr
+wichtig, da wir sonst wieder Reklamationen erhalten, dass die Transaktion nicht
+abgeschlossen werden kann.
+End of Section 5
+
+===== PAGE 32 =====
+Section 6 of 9
+Use Case aus Verkäufersicht
+Der Verkäufer will MoneyGuard deaktivieren
+
+Embedded content is not available in PDF.
+Please use the link below to view the content.
+https://miro.com/app/board/uXjVKXVBbXk=/
+Wichtig: MoneyGuard kann nur deaktiviert werden, wenn das Mitglied keine offenen
+Angebote hat mit Geboten drauf. Sobald ein Artikel ein Gebot hat, kann MoneyGuard
+nicht deaktiviert werden.
+Um MoneyGuard im Benutzerkonto zu deaktivieren gehe ich wie folgt vor. Ich öffne das
+Adminkonto des Mitglieds und sehe zuerst Moneyguard ist aktiviert und deaktiviere es
+anschliessend mit dem Button "OFFBOARD FROM MG".
+
+===== PAGE 33 =====
+Wenn es deaktiviert ist, sieht es so aus und wir können die Deaktivierung dem Mitglied
+bestätigen mit dem unten genannten Makro.
+
+===== PAGE 34 =====
+Die dazugehörigen Makros und Links zu den Listen
+Markos:
+Makro für: Marko heisst:
+Mitglied gibt den Grund für die MoneyGuard will MoneyGuard
+Kündigung nicht an deaktivieren
+Bestätigung nach der
+MoneyGuard deaktiviert
+Deaktivierung
+Link:
+MoneyGuard Offboarding List
+Transaktion wurde automatisch storniert
+
+Embedded content is not available in PDF.
+Please use the link below to view the content.
+https://miro.com/app/board/uXjVKXYhSrA=/?share_link_id=721279660152
+
+===== PAGE 35 =====
+Die dazugehörigen Makros
+Makro für:
+Marko heisst:
+Wenn der Verkäufer sich meldet
+und fragt wieso die Transaktion
+storniert wurde.
+Transaktion automatisch storniert
+- Verkäufer
+
+===== PAGE 36 =====
+Der Verkäufer hat kein Geld erhalten, der Käufer
+teilt aber mit bezahlt zu haben.
+In diesem Fall hat der Verkäufer das System "MoneyGuard" nicht richtig verstanden.
+Trotz E-Mail, das die Zahlung eingegangen ist und er den Artikel versenden soll, sucht
+er das Geld auf seinem Konto.
+Wir werden ihm den Ablauf von MoneyGuard erklären und ihn bitten den Artikel
+umgehend zu versenden.
+Falls er den Artikel nicht innert 7 Tagen versendet, wird die Transaktion automatisch
+storniert und dem Käufer wird der bezahlte Betrag zurückerstattet.
+Makro für: Makro heisst:
+Verkäufer meldet sich, dass Käufer
+mitgeteilt hat er habe bezahlt, er Der Käufer hat bezahlt, Verkäufer
+hat aber kein Geld auf seinem sagt nicht erhalten - Verkäufer
+Konto.
+Prüfen ob der Artikel bezahlt wurde
+Wenn der Verkäufer sich meldet und mitteilt, dass der Artikel nicht bezahlt wurde prüft
+man das einam im Admin unter den Orders, wenn man da sieht es Paid ist grün, sollte
+die Zahlung vom Käufer erfolgt sein.
+Um ganz sicherzugehen, kann man dies im Adyen noch nachprüfen.
+Wichtig Ricardo_AFT auswählen und dann in der Suche die Order ID eingeben.
+
+===== PAGE 37 =====
+Dies bedeutet die Zahlung ist eingegangen und alles ist in Ordnung.
+
+===== PAGE 38 =====
+Verkäufer kann den Artikel nicht als bezahlt
+markieren, obwohl er Zahlung erhalten hat.
+Solche Anfragen kommen nur zu uns, wenn die Käufer direkt an den Verkäufer bezahlt
+hat und nicht wie eigentlich vorgesehen via Twint oder Kreditkarte über MoneyGuard.
+Denn wenn jemand via MoneyGuard bezahlt, wird dies automatisch markiert, sobald die
+Zahlung bei Adyen eingegangen ist.
+In so einem Fall muss die Transaktion ausnahmsweise ausserhalb von Ricardo
+abgeschlossen werden oder der Käufer bezahlt nochmals via Twint/Kreditkarte und der
+Verkäufer bezahlt ihm den direkt bezahlen Betrag manuell zurück.
+Verkäufer ist in den Ferien und kann nicht innert
+10 Tagen liefern, was nun?
+Bedauerlicherweise gibt es hier keine Lösung, weil alles an Fristen gebunden ist. Der
+Artikel muss zwingend innerhalb der 10 Tage nach Erhalt der Zahlungsbestätigung
+versendet werden.
+Ausser, er versendet den Artikel nicht innert Frist. Die Transaktion wird automatisch
+storniert, der Käufer erhält sein Geld zurück und die beiden Parteien wickeln den
+Verkauf ausserhalb von Ricardo ab. Sicher nicht eine Lösung, die wir weiterempfehlen,
+sollten aber im schlimmsten Fall die beste Lösung.
+Verkäufer meldet, dass der Käufer den Artikel
+abgeholt hat, jedoch bereits via MoneyGuard
+bezahlt hat.
+In diesem Fall sollte der Verkäufer den Artikel als versendet markieren. Der Käufer
+anschliessend den Artikel als erhalten und in Ordnung. Wenn das alles gemacht wurde,
+wird der bezahlte Betrag dem Verkäufer innert 2 bis 3 Arbeitstagen überwiesen.
+
+===== PAGE 39 =====
+Verkäufer meldet, dass der Käufer den Artikel
+abgeholt hat und bar vor Ort bezahlt hat.
+In diesem Fall ist es so, dass die Transaktion einfach offen bleibt beim Käufer und
+Verkäufer. Ein Anrecht auf eine Stornierung hat der Verkäufer nicht. Wir können den
+Artikel nicht als bezahlt markieren. Deshalb bleibt dies einfach bestehen.
+Der Verkäufer fragt, wann er die Auszahlung
+erhalten wird.
+2-3 Arbeitstage nachdem der Käufer den Artikel als in Ordnung markiert hat.
+Hier noch die genaue Erklärung:
+Sobald das Paket eingetroffen ist, hat der Käufer 3 Tage Zeit, um anzugeben, ob alles in
+Ordnung ist oder um ein Problem zu melden. Die Validierung des Artikels löst die
+Überweisung des Geldes auf dein Bankkonto aus.
+Wichtig: Wenn der Käufer nach 3 Tagen nicht antwortet, wird der Verkauf automatisch
+abgeschlossen und das Geld wird auf dein Bankkonto überwiesen.
+
+Embedded content is not available in PDF.
+Please use the link below to view the content.
+https://miro.com/app/board/uXjVKIuhMQM=/
+
+===== PAGE 40 =====
+Falls die 2-3 Tage vorbei sind und der Verkäufer meldet, dass er das Geld noch nicht
+erhalten hat, dann prüfen wir dies im Adyen Ricardo_AFP_CH. Mit der
+Mitgliedernummer suchen wir das Mitglied.
+Anschliessend klicken wir auf "View account holder".
+
+===== PAGE 41 =====
+Und siehe da, der Grund weshalb der Betrag dem Verkäufer nicht überweisen weren
+kann.
+Alles dazu im nächsten Thema: "Der Verkäufer reklamiert, dass er seine Auszahlung
+nicht erhalten hat (KYC)"
+
+===== PAGE 42 =====
+Der Verkäufer reklamiert, dass er seine
+Auszahlung nicht erhalten hat (KYC)
+
+Embedded content is not available in PDF.
+Please use the link below to view the content.
+https://miro.com/app/board/uXjVKMID1BY=/
+Wenn man im Admin folgende Meldung bei einem Verkäufer sieht, weiss man, dass
+dieser im Adyen blockiert ist und wir ihn prüfen müssen. Bei diesen Verkäufern wird
+kein Betrag ausbezahlt. Wir müssen die nötigen Unterlagen, Bankbeleg und Kopie des
+Ausweises oder Passes anfordern.
+
+===== PAGE 43 =====
+Makro für: Makro heisst:
+Wir benötigen vom Mitglied
+entweder die Ausweiskopie oder
+KYC - Bankauszug hochladen /
+den Bankauszug. Wir fordern
+Ausweis
+direkt beides an, damit wir alle
+Unterlagen haben.
+Im Okta findest du die Adyen App. Öffne diese:
+Jetzt wählst du Ricardo_AFP -> Ricardo_AFP_CH
+
+===== PAGE 44 =====
+1. Klicke links auf Platform -> Account holder
+2. Gib die Mitgliedernummer der Suche "Search" ein
+Anschliessend öffnet sich das folgende Fenster.
+
+===== PAGE 45 =====
+Mit dem Klick auf "View account holder" kommt man direkt in die Ansicht des
+Verkäufers.
+Bei diesem Bild ist alles in Ordnung. Und bei diesem Bild sieht man, dass er
+"Blocked" ist.
+1. Hier siehst du den Status und die Payouts. Sobald da was auf blocked ist, muss der
+Grund dafür überprüft werden.
+2. Dies prüft man, indem man auf "Go to onboarding" klickt.
+Bei "Go to onbarding" kann man sehen, was noch hochgeladen werden muss. Dies teilen
+wir anschliessend dem Mitglied mit. Erst wenn alles in Ordnung ist kann eine
+Auszahlung durchgeführt werden.
+Hier benötigen wir wahrscheinlich eine Ausweiskopie:
+
+===== PAGE 46 =====
+Hier benötigen wir einen Kontoauszug:
+
+===== PAGE 47 =====
+Hier wird ein Kontoauszug benötigt.
+Sobald wir den Ausweis oder den Kontoauszug des Mitglieds erhalten, gehen wir wieder
+ins Adyen, klicken auf “Go to onboarding” prüfen ob die Daten mit dem Ausweis
+übereinstimmen (Vor- und Nachname sind teilweise vertauscht), passen die falschen
+Angaben an und laden den Ausweis hoch. Manchmal ist es besser einen Print Screen der
+Ausweise mit einem guten Ausschnitt zu machen, damit die Ausweise gut erkennbar
+sind.
+Oder wir laden den zugestellten Kontoauszug hoch. Hier ist wichtig, dass die Adresse
+mit der Adresse des Kontoauszugs übereinstimmt. Auch muss die Adresse, die man bei
+der IBAN hinterlegt identisch mit der auf dem Kontoauszug sein.
+Anschliessend beginnt die Verifizierung nochmals. Sobald dann alles in Ordnung ist,
+sieht dies wie folgt aus.
+Sobald die Verifizierung funktioniert hat, kann auch die Auszahlung an den Verkäufer
+ausgeführt werden.
+In diesem Beispiel habe ich nun den Kontoauszug erhalten. Jetzt gebe ich diesen im
+Adyen ein.
+Ich klicke im Adyenkonto auf "Go to onboarding" -> sehe das der Auszug fehlt und
+klicke auf "Hinzufügen"
+
+===== PAGE 48 =====
+Bei diesem Beispiel erhalte ich die Ausweiskopie des Mitlgies. Jetzt füge ich diese im
+Adyen ein.
+Ich klicke im Adyenkonto auf "Go to onboarding" -> Sehe das Personenbezogen
+Angaben nicht korrekt sind und klicke darauf. Rechts klicke ich auf "Personnenbezogene
+Angaben" und mache jeden Schritt durch.
+Eventuell sehe ich auch, dass der Vor- und Nachname verwechselt wurde, dann ändere
+ich dies auch direkt. Lade die ID hoch und schliesse ab.
+Sobald ich alle durchgespielt habe wird die Verifizierung neu gestartet. Dies sieht dann
+so aus.
+
+===== PAGE 49 =====
+Und wann die Verifizierung durch ist und geklappt hat, sieht es wie folgt aus:
+End of Section 6
+
+===== PAGE 50 =====
+Section 7 of 9
+KYC (Onfido)
+Erklärung und Überprüfung der Dokumente in
+Onfido
+Jedes Mitglied, welches verkaufen möchte, muss bei Onfido eine Verifizierung mit seiner
+ID, Fahrausweis, Aufenthaltsbewilligung oder Reisepass durchführen. Normalerweise
+genehmigt Onfido die Verifizierungen direkt, wenn jedoch etwas nicht übereinstimmt,
+es eine Spiegelung im Ausweis hat oder etwas nicht leserlich ist, werden die
+Verifizierungen zu uns ins Admin zur Prüfung geschickt. Diese Überprüfung wird von
+ausgewählten Mitarbeitern gemacht.
+Das Überprüfung des Tools wird mehrmals täglich gemacht.
+Onfido Link: https://dashboard.onfido.com/library
+Überprüfung der Dokumente in Onfido
+Ihr könnt im Onfido alle Ausweise einsehen, falls dies für eine Entscheidung notwendig
+ist.
+Login: https://dashboard.onfido.com/library (Login-Daten solltet ihr per E-Mail
+erhalten haben) oder im Zendesk findet ihr jeweils rechts bei den Links ein Button
+"Onfido Prüfung", da kommt ihr direkt ins Onfido auf das Mitglied, ausser die Angaben
+stimmten überhaupt nicht überein.
+1. Man kann im Onfido auch die gewünschte Person suchen. Entweder mit
+Mitgliedsnummer@ricardo.ch oder direkt mit dem Namen. Auch vom Zendesk aus
+kommt man über den Link "Onfido Prüfung" direkt zum entsprechenden Check in
+Onfido.
+2. Wenn man den Namen anklickt, kann man weitere Details sehen
+
+===== PAGE 51 =====
+Sobald man auf den Namen klickt, erhält man die folgende Ansicht.
+3. Wenn man bei "Caution" auf den Pfeil klicken, kann man die Details sehen, weshalb
+die Ausweis-verifizierung nicht erfolgreich war.
+4. Hier kann man den Ausweis sehen, der zur Verifizierung hochgeladen wurde
+
+===== PAGE 52 =====
+Schluss
+End of Section 7
+
+===== PAGE 53 =====
+Section 8 of 9
+Disputes / Problemfälle
+Dispute Ablauf
+
+Embedded content is not available in PDF.
+Please use the link below to view the content.
+https://miro.com/app/board/uXjVKGALrkc=/
+Das Formular, welches der Käufer ausfüllen muss, sieht wie folgt aus. Nebst den Bildern
+im Angebot und die Produktbeschreibung hilft dir dies, um zu entscheiden, ob dieser
+Streitfall angenommen oder abgelehnt wird. Es kann auch sein, dass du mal was googeln
+musst, weil du dich nicht auskennst. Aber meisten "im Zweifel für den Angeklagten".
+
+===== PAGE 54 =====
+Allgemeines zu den Diputes / Streifällen
+Häufigkeit der Bearbeitung der Streitfälle
+Die Streitfälle sollten, wenn möglich, täglich bearbeitet werden. Falls es nebst den
+Telefonen nicht machbar ist, meldet euch beim Schichtverantwortlichen, damit ihr euch
+im Verlauf des Tages mal ausloggen könnt für 1-2 Stunden. Besser noch wäre, wenn ihr
+die Streitfälle von 08.00 - 09.00 Uhr oder 16.00 - 17.00 Uhr bearbeitet.
+Rücksendeliste nachbearbeiten
+Die Rücksendeliste wurde noch bis am 31.10.2024 gebraucht. Hier haben wir geprüft,
+ob die Pakete abgeschickt und angekommen sind. Merkt ihr, dass ein Artikel nach 7
+Tagen immer noch nicht versendet wurde, dürft ihr einen solchen Streitfall ablehnen, da
+die Käufer eine Frist von 7 Tagen erhalten, um den Artikel zurückzusenden nach einem
+genehmigten Streitfall. Gebt dem Mitglied aber noch ein paar Tage mehr, weil eventuell
+war es in den Ferien oder sonst irgendwie verhindert. Maximal 14 Tage, dann zwingend
+ablehnen. Mehr dazu findet ihr im Kapitel "Streitfall annehmen und Transaktion
+stornieren".
+
+===== PAGE 55 =====
+Streitfall annehmen und Transaktion stornieren
+Streitfall annehmen
+Wenn ein Streitfall eingereicht wird und der Verkäufer damit einverstanden ist (und
+mit Ja antwortet), müssen wir im KD nichts mehr machen (und können die Mails vom
+Käufer/Verkäufer mit einer Notiz "automatisch akzeptiert" als gelöst einreichen).
+Das Postlabel wird automatisch an den Käufer gesendet + der VK informiert
+Die Rücksendung an den VK wird automatisch getrackt
+Sobald der Artikel gemäss Track&Trace der Post beim VK ist, wird automatisch die
+Transaktion storniert und das Geld an den Käufer zurückbezahlt (und beide Parteien
+darüber informiert)
+Sollte der Käufer den Artikel nicht innerhalb von 4 Tagen senden, bekommt er eine
+Erinnerung.
+Sollte der Käufer den Artikel auch innerhalb von 10 Tagen nicht zurücksenden,
+bekommen wir im Zendesk eine System-E-Mail, damit wir weiter entscheiden
+können, was passieren soll.
+Wenn ein Streitfall eingereicht wird und der Verkäufer damit NICHT einverstanden
+ist (und mit Nein antwortet), schauen wir wie bisher den Fall an und entscheiden
+danach:
+Wenn wir entscheiden den Streitfall zu akzeptieren, müssen wir auf der Order Seite
+neu auf "Accept complaint", danach erfolgt der Rest wie oben alles automatisch
+(Label versendet / Tracking der Rücksendung / Auszahlung an Käufer).
+
+===== PAGE 56 =====
+Artikel wird vom Käufer nicht fristgerecht zurückgesendet
+Sollte der Käufer den Artikel auch innerhalb von 10 Tagen nicht zurücksenden,
+bekommen wir im Zendesk eine System-E-Mail, damit wir weiter entscheiden können,
+was passieren soll.
+Streitfall akzeptieren und Transaktion stornieren, bei alten
+Fällen vor dem 31.10.2024 oder bei Fällen, wo kein Artikel
+geliefert wurde
+Öffne die Transaktion unter Orders
+Klicke auf den Button "Mangae Diespute". Es öffnet sich ein neues Fenster.
+Wähle den Grund: "Close complaint"
+Anschliessend die Checkbox anwählen "This action cannot be cancelled", erst jetzt
+wird der Button Confirm aktiv.
+Jetzt stornierst du die Transaktion, indem du auf den Button "Confirm" klickst.
+Die E-Mails werden automatisch versendet, da müssen wir nichts mehr tun.
+
+===== PAGE 57 =====
+Wichtig:
+Accept complaint - wir akzeptieren den Streitfall (Rücksendeetikett wird ausgelöst etc.)
+Reject complaint - wir lehnen den Streitfall ab
+Close complaint - wir akzeptieren den Streitfall und stornieren die Transaktion
+Streitfall ablehnen
+Wenn wir entscheiden den Streitfall abzulehnen, heisst der Grund neu "Reject
+complaint"; damit wir das Geld an den VK ausgelöst und Streitfall geschlossen. In
+diesem Fall müssen wir wie gewohnt den Käufer + Verkäufer manuell via Zendesk
+informieren.
+Öffne die Transaktion unter Orders
+Klicke auf den Button "Manage Dispute". Es öffnet sich ein neues Fenster.
+Wähle den Grund "Reject complaint"
+Markiere die Checkbox "This action cannot be cancelled" erst dann wird der Button
+"Confirm" aktiv.
+Um den Streitfall abzulehnen, klicke dann auf den Button "Confirm". Jetzt wurde der
+Streitfall abgelehnt und das Geld wird automatisch dem Verkäufer ausbezahlt.
+
+===== PAGE 58 =====
+Zu guter Letzt informieren wir noch Käufer und Verkäufer über unsere Entscheidung.
+Dafür gibt es zwei Makros.
+Marko für: Makro heisst:
+Info an den Käufer, dass wir seinen
+Streitfall abgelehnt haben,
+Streitfall abgelehnt - Käufer
+mit Begründung. Diese muss
+manuell eingefügt werden.
+Info an den Verkäufer, dass der
+Streitfall abgelehnt wurde, mit
+Streitfall abgelehnt - Verkäufer
+Begründung. Diese muss manuell
+eingefügt werden.
+Wichtig:
+Accept complaint - wir akzeptieren den Streitfall (Rücksendeetikett wird ausgelöst etc.)
+Reject complaint - wir lehnen den Streitfall ab
+Close complaint - wir akzeptieren den Streitfall und stornieren die Transaktion
+End of Section 8
+
+===== PAGE 59 =====
+Section 9 of 9
+Use Case Disput / Problemfälle
+Der Verkäufer hat kein Artikel geliefert
+Ausgangslage:
+Der Käufer hat einen Streitfall eröffnet, mit der Begründung, dass er keinen Artikel vom
+Verkäufer erhalten hat. Im System hat der Verkäufer jedoch markiert, den Artikel
+verschickt zu haben.
+Weiteres Vorgehen:
+Wir nehmen den Streitfall an. Müssen in diesem Fall aber kein Rücksendelabel
+generieren, da kein Artikel zurückgesendet werden muss.
+Der Käufer behauptet eine Fälschung erhalten zu
+haben
+Auch in diesen Fällen fordern wir vom Käufer eine Bestätigung an. Wir benötigen den
+Beweis, dass es sich um eine Fälschung handelt.
+End of Section 9

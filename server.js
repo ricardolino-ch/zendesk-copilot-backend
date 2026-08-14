@@ -38,6 +38,7 @@ const SUPPORTED_ACTIONS = new Set([
 ]);
 const SYSTEM_PROMPT = fs.readFileSync(path.join(__dirname, "systemprompt.txt"), "utf8").trim();
 const KNOWLEDGE_PACK = fs.readFileSync(path.join(__dirname, "knowledge-pack.md"), "utf8").trim();
+const KNOWLEDGE_ROOT = path.join(__dirname, "knowledge");
 function loadMarkdownTree(root) {
   if (!fs.existsSync(root)) return "";
   const files = [];
@@ -48,6 +49,27 @@ function loadMarkdownTree(root) {
   });
   visit(root);
   return files.sort().map((file) => `\n\n## Quelle: ${path.relative(__dirname, file)}\n${fs.readFileSync(file, "utf8")}`).join("").trim();
+}
+function loadRelevantKnowledge(query) {
+  if (!fs.existsSync(KNOWLEDGE_ROOT)) return "";
+  const words = new Set(String(query || "").toLowerCase().match(/[a-zäöüàéèê0-9]{4,}/g) || []);
+  const files = [];
+  const visit = (dir) => fs.readdirSync(dir, { withFileTypes: true }).forEach((entry) => {
+    const full = path.join(dir, entry.name);
+    if (entry.isDirectory()) visit(full);
+    else if (entry.isFile() && /\.(md|txt)$/i.test(entry.name)) {
+      const content = fs.readFileSync(full, "utf8");
+      const tokens = content.toLowerCase().match(/[a-zäöüàéèê0-9]{4,}/g) || [];
+      const overlap = tokens.reduce((sum, token) => sum + (words.has(token) ? 1 : 0), 0);
+      const historicalPenalty = full.includes(`${path.sep}_historical${path.sep}`) ? 0.35 : 1;
+      files.push({ full, content, score: overlap * historicalPenalty });
+    }
+  });
+  visit(KNOWLEDGE_ROOT);
+  return files.sort((a, b) => b.score - a.score).slice(0, 12)
+    .filter((item, index) => item.score > 0 || index < 3)
+    .map((item) => `\n\n## Wissensquelle: ${path.relative(__dirname, item.full)}${item.full.includes(`${path.sep}_historical${path.sep}`) ? " (historische Referenz, nicht automatisch verbindlich)" : ""}\n${item.content.slice(0, 12000)}`)
+    .join("").slice(0, 90000);
 }
 const PROJECT_SOURCES = `${loadMarkdownTree(path.join(__dirname, "docs"))}\n\n${loadMarkdownTree(path.join(__dirname, "project-sources"))}`.trim();
 const FEEDBACK_DIR = path.join(__dirname, "feedback");
@@ -175,9 +197,10 @@ function approvedExamplesFor(query) {
 async function runPrompt(prompt, query) {
   const examples = approvedExamplesFor(query);
   const examplesBlock = examples ? `\n\nGEPRÜFTE ÄHNLICHE MUSTERBEISPIELE:\n${examples}\n\nNutze diese Beispiele nur als Stil- und Lösungsreferenz. Übertrage keine Fakten, Namen, Nummern oder Fristen aus einem Beispiel in das aktuelle Ticket.` : "";
+  const relevantKnowledge = loadRelevantKnowledge(query);
   const response = await getOpenAIClient().responses.create({
     model: "gpt-5.6-luna",
-    input: `${SYSTEM_PROMPT}\n\nVERBINDLICHE FREIGEGEBENE WISSENSBASIS:\n${KNOWLEDGE_PACK}\n\nZUSÄTZLICHE PROJEKTQUELLEN UND DOKUMENTATION:\n${PROJECT_SOURCES}${examplesBlock}\n\nZusätzliche verbindliche Vorgabe: Schreibe die konkrete Aufgabe vollständig in der vom Auftrag verlangten Zielsprache. Verwende Quellen nur, wenn sie zum Ticket passen. Bei Widerspruch oder fehlender Grundlage keine Regel erfinden.\n\nAUFGABE:\n${prompt}`
+    input: `${SYSTEM_PROMPT}\n\nVERBINDLICHE FREIGEGEBENE WISSENSBASIS:\n${KNOWLEDGE_PACK}\n\nRELEVANTE DETAILQUELLEN AUS DEM VOLLSTÄNDIGEN WISSENSARCHIV:\n${relevantKnowledge || "Keine zusätzliche Detailquelle gefunden."}\n\nZUSÄTZLICHE PROJEKTQUELLEN UND DOKUMENTATION:\n${PROJECT_SOURCES}${examplesBlock}\n\nZusätzliche verbindliche Vorgabe: Schreibe die konkrete Aufgabe vollständig in der vom Auftrag verlangten Zielsprache. Verwende die passenden Detailquellen aktiv. Historische Quellen sind nur Referenzen; bei Widerspruch gilt die freigegebene aktuelle Wissensbasis. Bei fehlender Grundlage keine Regel erfinden.\n\nAUFGABE:\n${prompt}`
   });
   return String(response.output_text || "").trim();
 }
