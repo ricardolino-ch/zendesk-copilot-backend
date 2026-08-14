@@ -68,7 +68,7 @@ test("ticket prompt prioritizes the current customer question", () => {
 
 test("reply prompt separates evidence from internal guidance", () => {
   const source = fs.readFileSync("./server.js", "utf8");
-  assert.match(source, /internal agent hint/);
+  assert.match(source, /INTERNAL AGENT HINT \(HIGH PRIORITY\)/);
   assert.match(source, /distinguish clearly between an amount shown on a label/);
   assert.match(source, /Respond directly, naturally and personally/);
 });
@@ -81,6 +81,6 @@ test("system prompt allows one specific follow-up question", () => {
 
 test("internal hints cannot inject unsupported concrete facts", () => {
   const source = fs.readFileSync("./server.js", "utf8");
-  assert.match(source, /Never introduce a number, amount, article ID/);
-  assert.match(source, /internal agent hint as intent or a question/);
+  assert.match(source, /Never add article IDs, sale IDs, amounts/);
+  assert.match(source, /Never invent details absent from both the ticket and the internal hint/);
 });
