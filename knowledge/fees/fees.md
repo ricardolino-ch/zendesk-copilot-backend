@@ -13,6 +13,15 @@
 - Gebühren, Gutschriften, Rückerstattungen und Zahlungen sind in der
   Gebührenübersicht nachvollziehbar.
 
+## Versandetiketten
+
+- Die Ricardo-Versandetikette wird anhand der Versandangaben im Angebot erstellt.
+- Verwendet das Mitglied diese Ricardo-Etikette, werden die darin ausgewiesenen
+  Versandkosten entsprechend verrechnet.
+- Das Mitglied kann stattdessen selbst direkt bei der Post eine Versandetikette
+  beziehen. In diesem Fall verrechnet Ricardo keine Versandkosten für eine
+  Ricardo-Etikette. Die Wahl liegt beim Mitglied.
+
 ## Zahlungsfristen
 
 - 14 Tage: Zahlungsaufforderung.

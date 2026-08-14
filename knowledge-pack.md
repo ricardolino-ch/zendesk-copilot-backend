@@ -234,6 +234,10 @@ historischen Tickets oder früheren Entwürfen.
 - Ohne Käuferschutz+ muss der Verkäufer den Zahlungseingang im eigenen
   Bankkonto prüfen und erst danach versenden.
 - Versandetiketten werden dem Konto belastet, über das sie erstellt wurden.
+- Die Ricardo-Etikette wird anhand der Versandangaben im Angebot erstellt. Wird
+  diese Ricardo-Etikette genutzt, werden die ausgewiesenen Versandkosten
+  verrechnet. Bezieht das Mitglied die Etikette direkt bei der Post, verrechnet
+  Ricardo dafür nichts. Das Mitglied hat die Wahl.
 - Ein Paket über dem zulässigen Gewicht oder den zulässigen Massen kann von der
   Post nachträglich mit einem Zuschlag belastet werden.
 - Die allgemeine Angabe eines Standardpakets bis 30 kg beschreibt die maximal
