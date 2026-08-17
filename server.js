@@ -3,6 +3,8 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const OpenAI = require("openai");
+let Pool;
+try { ({ Pool } = require("pg")); } catch (_) { Pool = null; }
 const fs = require("fs");
 const path = require("path");
 
@@ -74,6 +76,40 @@ function loadRelevantKnowledge(query) {
 const PROJECT_SOURCES = `${loadMarkdownTree(path.join(__dirname, "docs"))}\n\n${loadMarkdownTree(path.join(__dirname, "project-sources"))}`.trim();
 const FEEDBACK_DIR = path.join(__dirname, "feedback");
 const FEEDBACK_FILE = path.join(FEEDBACK_DIR, "pending.jsonl");
+const feedbackPool = process.env.DATABASE_URL && Pool ? new Pool({ connectionString: process.env.DATABASE_URL, ssl: { rejectUnauthorized: false } }) : null;
+let feedbackDbReady;
+function initFeedbackDb() {
+  if (!feedbackPool) return Promise.resolve(false);
+  if (!feedbackDbReady) feedbackDbReady = feedbackPool.query(`CREATE TABLE IF NOT EXISTS copilot_feedback (id BIGSERIAL PRIMARY KEY, status TEXT NOT NULL, created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), reviewed_at TIMESTAMPTZ, action TEXT NOT NULL, language TEXT NOT NULL, original TEXT NOT NULL, corrected TEXT NOT NULL)`).then(() => true);
+  return feedbackDbReady;
+}
+async function saveFeedback(item) {
+  if (await initFeedbackDb()) {
+    await feedbackPool.query("INSERT INTO copilot_feedback (status, action, language, original, corrected) VALUES ($1,$2,$3,$4,$5)", [item.status, item.action, item.language, item.original, item.corrected]);
+    return;
+  }
+  fs.mkdirSync(FEEDBACK_DIR, { recursive: true });
+  fs.appendFileSync(FEEDBACK_FILE, `${JSON.stringify(item)}\n`, "utf8");
+}
+async function pendingFeedback() {
+  if (await initFeedbackDb()) {
+    const { rows } = await feedbackPool.query("SELECT id AS index, status, created_at AS \"createdAt\", action, language, original, corrected FROM copilot_feedback WHERE status = 'pending' ORDER BY created_at ASC");
+    return rows;
+  }
+  if (!fs.existsSync(FEEDBACK_FILE)) return [];
+  return fs.readFileSync(FEEDBACK_FILE, "utf8").split("\n").filter(Boolean).map((line, index) => ({ index, ...JSON.parse(line) })).filter((item) => item.status === "pending");
+}
+async function reviewFeedback(index, status) {
+  if (await initFeedbackDb()) {
+    const result = await feedbackPool.query("UPDATE copilot_feedback SET status = $1, reviewed_at = NOW() WHERE id = $2", [status, index]);
+    return result.rowCount > 0;
+  }
+  if (!fs.existsSync(FEEDBACK_FILE)) return false;
+  const lines = fs.readFileSync(FEEDBACK_FILE, "utf8").split("\n").filter(Boolean);
+  if (!lines[index]) return false;
+  const item = JSON.parse(lines[index]); item.status = status; item.reviewedAt = new Date().toISOString(); lines[index] = JSON.stringify(item);
+  fs.writeFileSync(FEEDBACK_FILE, `${lines.join("\n")}\n`, "utf8"); return true;
+}
 
 function getLanguageName(code) {
   return LANGUAGES[code] || LANGUAGES.de;
@@ -179,12 +215,12 @@ function promptFor({ action, targetLanguage, text, agentContext, requesterName, 
   return `Translate this text into ${language}. Preserve its meaning precisely. If it is a customer reply, return a complete customer-ready reply using the appropriate exact greeting and closing below. Otherwise translate naturally without adding content. Return only the final text.\n\nCustomer name: ${requesterName || ""}\n${templates}\n\nOriginal text:\n${text}`;
 }
 
-function approvedExamplesFor(query) {
-  if (!fs.existsSync(FEEDBACK_FILE)) return "";
+async function approvedExamplesFor(query) {
   const queryWords = new Set(String(query || "").toLowerCase().match(/[a-zäöüàéèê0-9]{4,}/g) || []);
-  const rows = fs.readFileSync(FEEDBACK_FILE, "utf8").split("\n").filter(Boolean).map((line) => {
-    try { return JSON.parse(line); } catch (_) { return null; }
-  }).filter((row) => row && row.status === "approved");
+  let rows;
+  if (await initFeedbackDb()) rows = (await feedbackPool.query("SELECT status, original, corrected FROM copilot_feedback WHERE status = 'approved' ORDER BY reviewed_at DESC NULLS LAST")).rows;
+  else if (fs.existsSync(FEEDBACK_FILE)) rows = fs.readFileSync(FEEDBACK_FILE, "utf8").split("\n").filter(Boolean).map((line) => { try { return JSON.parse(line); } catch (_) { return null; } }).filter((row) => row && row.status === "approved");
+  else rows = [];
   const ranked = rows.map((row) => {
     const words = String(row.original || "").toLowerCase().match(/[a-zäöüàéèê0-9]{4,}/g) || [];
     const score = words.reduce((sum, word) => sum + (queryWords.has(word) ? 1 : 0), 0);
@@ -195,7 +231,7 @@ function approvedExamplesFor(query) {
 }
 
 async function runPrompt(prompt, query) {
-  const examples = approvedExamplesFor(query);
+  const examples = await approvedExamplesFor(query);
   const examplesBlock = examples ? `\n\nGEPRÜFTE ÄHNLICHE MUSTERBEISPIELE:\n${examples}\n\nNutze diese Beispiele nur als Stil- und Lösungsreferenz. Übertrage keine Fakten, Namen, Nummern oder Fristen aus einem Beispiel in das aktuelle Ticket.` : "";
   const relevantKnowledge = loadRelevantKnowledge(query);
   const response = await getOpenAIClient().responses.create({
@@ -207,13 +243,12 @@ async function runPrompt(prompt, query) {
 
 app.get("/health", (req, res) => res.json({ ok: true, version: "2.0.0" }));
 
-app.post("/feedback", requireApiToken, (req, res) => {
+app.post("/feedback", requireApiToken, async (req, res) => {
   try {
     const { action, language, original, corrected, ticketId = "" } = req.body || {};
     if (!String(original || "").trim() || !String(corrected || "").trim()) return res.status(400).json({ error: "Original and corrected text are required" });
     if (String(original).length > 20000 || String(corrected).length > 20000) return res.status(400).json({ error: "Feedback is too long" });
-    fs.mkdirSync(FEEDBACK_DIR, { recursive: true });
-    fs.appendFileSync(FEEDBACK_FILE, `${JSON.stringify({ status: "pending", createdAt: new Date().toISOString(), action: String(action || "unknown"), language: String(language || "de"), ticketId: "", original: anonymizeText(original), corrected: anonymizeText(corrected) })}\n`, "utf8");
+    await saveFeedback({ status: "pending", createdAt: new Date().toISOString(), action: String(action || "unknown"), language: String(language || "de"), ticketId: "", original: anonymizeText(original), corrected: anonymizeText(corrected) });
     res.status(202).json({ ok: true, status: "pending" });
   } catch (error) { res.status(500).json({ error: "Feedback could not be saved" }); }
 });
@@ -225,25 +260,17 @@ function feedbackAuthorized(req) {
 
 app.get("/feedback/review", (req, res) => res.sendFile(path.join(__dirname, "feedback", "review.html")));
 
-app.get("/feedback/pending", (req, res) => {
+app.get("/feedback/pending", async (req, res) => {
   if (!feedbackAuthorized(req)) return res.status(401).json({ error: "Review authorization required" });
-  if (!fs.existsSync(FEEDBACK_FILE)) return res.json({ items: [] });
-  const items = fs.readFileSync(FEEDBACK_FILE, "utf8").split("\n").filter(Boolean).map((line, index) => ({ index, ...JSON.parse(line) })).filter((item) => item.status === "pending");
-  res.json({ items });
+  res.json({ items: await pendingFeedback() });
 });
 
-app.post("/feedback/review", (req, res) => {
+app.post("/feedback/review", async (req, res) => {
   if (!feedbackAuthorized(req)) return res.status(401).json({ error: "Review authorization required" });
   const index = Number(req.body && req.body.index);
   const status = req.body && req.body.status;
-  if (!Number.isInteger(index) || !["approved", "rejected"].includes(status) || !fs.existsSync(FEEDBACK_FILE)) return res.status(400).json({ error: "Invalid review request" });
-  const lines = fs.readFileSync(FEEDBACK_FILE, "utf8").split("\n").filter(Boolean);
-  if (!lines[index]) return res.status(404).json({ error: "Feedback not found" });
-  const item = JSON.parse(lines[index]);
-  item.status = status;
-  item.reviewedAt = new Date().toISOString();
-  lines[index] = JSON.stringify(item);
-  fs.writeFileSync(FEEDBACK_FILE, `${lines.join("\n")}\n`, "utf8");
+  if (!Number.isInteger(index) || !["approved", "rejected"].includes(status)) return res.status(400).json({ error: "Invalid review request" });
+  if (!await reviewFeedback(index, status)) return res.status(404).json({ error: "Feedback not found" });
   res.json({ ok: true, status });
 });
 
