@@ -99,6 +99,35 @@ async function pendingFeedback() {
   if (!fs.existsSync(FEEDBACK_FILE)) return [];
   return fs.readFileSync(FEEDBACK_FILE, "utf8").split("\n").filter(Boolean).map((line, index) => ({ index, ...JSON.parse(line) })).filter((item) => item.status === "pending");
 }
+async function listFeedback(status) {
+  if (await initFeedbackDb()) {
+    const { rows } = await feedbackPool.query("SELECT id AS index, status, created_at AS \"createdAt\", reviewed_at AS \"reviewedAt\", action, language, original, corrected FROM copilot_feedback WHERE status = $1 ORDER BY created_at DESC", [status]);
+    return rows;
+  }
+  if (!fs.existsSync(FEEDBACK_FILE)) return [];
+  return fs.readFileSync(FEEDBACK_FILE, "utf8").split("\n").filter(Boolean).map((line, index) => ({ index, ...JSON.parse(line) })).filter((item) => item.status === status);
+}
+async function editFeedback(index, corrected) {
+  if (await initFeedbackDb()) {
+    const result = await feedbackPool.query("UPDATE copilot_feedback SET corrected = $1 WHERE id = $2", [anonymizeText(corrected), index]);
+    return result.rowCount > 0;
+  }
+  if (!fs.existsSync(FEEDBACK_FILE)) return false;
+  const lines = fs.readFileSync(FEEDBACK_FILE, "utf8").split("\n").filter(Boolean);
+  if (!lines[index]) return false;
+  const item = JSON.parse(lines[index]); item.corrected = anonymizeText(corrected); lines[index] = JSON.stringify(item);
+  fs.writeFileSync(FEEDBACK_FILE, `${lines.join("\n")}\n`, "utf8"); return true;
+}
+async function deleteFeedback(index) {
+  if (await initFeedbackDb()) {
+    const result = await feedbackPool.query("DELETE FROM copilot_feedback WHERE id = $1", [index]);
+    return result.rowCount > 0;
+  }
+  if (!fs.existsSync(FEEDBACK_FILE)) return false;
+  const lines = fs.readFileSync(FEEDBACK_FILE, "utf8").split("\n").filter(Boolean);
+  if (!lines[index]) return false;
+  lines.splice(index, 1); fs.writeFileSync(FEEDBACK_FILE, lines.length ? `${lines.join("\n")}\n` : "", "utf8"); return true;
+}
 async function reviewFeedback(index, status) {
   if (await initFeedbackDb()) {
     const result = await feedbackPool.query("UPDATE copilot_feedback SET status = $1, reviewed_at = NOW() WHERE id = $2", [status, index]);
@@ -264,6 +293,10 @@ app.get("/feedback/pending", async (req, res) => {
   if (!feedbackAuthorized(req)) return res.status(401).json({ error: "Review authorization required" });
   res.json({ items: await pendingFeedback() });
 });
+app.get("/feedback/approved", async (req, res) => {
+  if (!feedbackAuthorized(req)) return res.status(401).json({ error: "Review authorization required" });
+  res.json({ items: await listFeedback("approved") });
+});
 
 app.post("/feedback/review", async (req, res) => {
   if (!feedbackAuthorized(req)) return res.status(401).json({ error: "Review authorization required" });
@@ -272,6 +305,19 @@ app.post("/feedback/review", async (req, res) => {
   if (!Number.isInteger(index) || !["approved", "rejected"].includes(status)) return res.status(400).json({ error: "Invalid review request" });
   if (!await reviewFeedback(index, status)) return res.status(404).json({ error: "Feedback not found" });
   res.json({ ok: true, status });
+});
+app.patch("/feedback/review/:index", async (req, res) => {
+  if (!feedbackAuthorized(req)) return res.status(401).json({ error: "Review authorization required" });
+  const index = Number(req.params.index); const corrected = String(req.body && req.body.corrected || "").trim();
+  if (!Number.isInteger(index) || !corrected || corrected.length > 20000) return res.status(400).json({ error: "Invalid correction" });
+  if (!await editFeedback(index, corrected)) return res.status(404).json({ error: "Feedback not found" });
+  res.json({ ok: true });
+});
+app.delete("/feedback/review/:index", async (req, res) => {
+  if (!feedbackAuthorized(req)) return res.status(401).json({ error: "Review authorization required" });
+  const index = Number(req.params.index);
+  if (!Number.isInteger(index) || !await deleteFeedback(index)) return res.status(404).json({ error: "Feedback not found" });
+  res.json({ ok: true });
 });
 
 app.post("/copilot", requireApiToken, async (req, res) => {
