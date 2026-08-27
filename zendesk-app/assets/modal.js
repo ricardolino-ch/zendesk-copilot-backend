@@ -13,6 +13,11 @@
   recommendationButton.textContent = "Empfehlung anzeigen";
   document.querySelector(".toolbar").appendChild(recommendationButton);
   controls.push(recommendationButton);
+  const recommendationSection = document.createElement("section");
+  recommendationSection.hidden = true;
+  recommendationSection.innerHTML = '<label for="agent-recommendation">Interne Empfehlung <span class="muted">(nur für Mitarbeitende)</span></label><textarea id="agent-recommendation" class="context" readonly></textarea>';
+  document.querySelector("main").insertBefore(recommendationSection, document.querySelector(".secondary"));
+  const recommendation = document.getElementById("agent-recommendation");
   let context = null;
   let lastGeneratedText = "";
 
@@ -45,7 +50,7 @@
     const action = button.dataset.action;
     const labels = { summarize_ticket: "Zusammenfassung wird erstellt …", reply_from_summary: "Antwort wird erstellt …", agent_recommendation: "Interne Empfehlung wird erstellt …", translate_summary: "Zusammenfassung wird übersetzt …", improve_text: "Text wird verbessert …", translate_text: "Text wird übersetzt …" };
     setBusy(labels[action]);
-    try { text.value = await call(action); lastGeneratedText = text.value; setStatus("Fertig."); } catch (error) { setStatus(error.message, true); }
+    try { const output = await call(action); if (action === "agent_recommendation") { recommendation.value = output; recommendationSection.hidden = false; } else { text.value = output; lastGeneratedText = text.value; } setStatus("Fertig."); } catch (error) { setStatus(error.message, true); }
   }));
   document.getElementById("insert").addEventListener("click", async () => {
     try {
