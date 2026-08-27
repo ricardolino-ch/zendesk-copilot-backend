@@ -7,6 +7,12 @@
   const language = document.getElementById("language");
   const status = document.getElementById("status");
   const controls = Array.from(document.querySelectorAll("button[data-action], #insert, #save-feedback"));
+  const recommendationButton = document.createElement("button");
+  recommendationButton.type = "button";
+  recommendationButton.dataset.action = "agent_recommendation";
+  recommendationButton.textContent = "Empfehlung anzeigen";
+  document.querySelector(".toolbar").appendChild(recommendationButton);
+  controls.push(recommendationButton);
   let context = null;
   let lastGeneratedText = "";
 
@@ -29,7 +35,7 @@
   function setStatus(message, isError) { controls.forEach((button) => { button.disabled = false; }); status.className = `status${isError ? " error" : ""}`; status.textContent = message; }
   async function call(action) {
     if (!context) throw new Error("Ticket-Kontext wird noch geladen. Bitte kurz warten.");
-    if (action !== "summarize_ticket" && action !== "reply_from_summary" && !text.value.trim() && !agentContext.value.trim()) throw new Error("Bitte einen internen Hinweis oder einen Text eingeben.");
+    if (action !== "summarize_ticket" && action !== "reply_from_summary" && action !== "agent_recommendation" && !text.value.trim() && !agentContext.value.trim()) throw new Error("Bitte einen internen Hinweis oder einen Text eingeben.");
     const response = await fetch(API_URL, { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${API_TOKEN}` }, body: JSON.stringify({ action, targetLanguage: language.value, text: text.value, agentContext: agentContext.value, ticketId: context.ticketId, requesterName: context.requesterName }) });
     const data = await response.json().catch(() => ({}));
     if (!response.ok) throw new Error(data.error || "Der Copilot ist momentan nicht erreichbar.");
@@ -37,7 +43,7 @@
   }
   document.querySelectorAll("button[data-action]").forEach((button) => button.addEventListener("click", async () => {
     const action = button.dataset.action;
-    const labels = { summarize_ticket: "Zusammenfassung wird erstellt …", reply_from_summary: "Antwort wird erstellt …", translate_summary: "Zusammenfassung wird übersetzt …", improve_text: "Text wird verbessert …", translate_text: "Text wird übersetzt …" };
+    const labels = { summarize_ticket: "Zusammenfassung wird erstellt …", reply_from_summary: "Antwort wird erstellt …", agent_recommendation: "Interne Empfehlung wird erstellt …", translate_summary: "Zusammenfassung wird übersetzt …", improve_text: "Text wird verbessert …", translate_text: "Text wird übersetzt …" };
     setBusy(labels[action]);
     try { text.value = await call(action); lastGeneratedText = text.value; setStatus("Fertig."); } catch (error) { setStatus(error.message, true); }
   }));
