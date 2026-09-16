@@ -8,6 +8,8 @@
     {"file": "_common/quality-checklist.md", "tags": ["qualität", "datenschutz"], "status": "approved"},
     {"file": "_common/user-confirmed-rules.md", "tags": ["bestätigt", "prozess", "antwortstil", "kulanz"], "status": "approved"},
     {"file": "_common/missing-source-links.md", "tags": ["quellen", "easygenerator", "externe-dokumente"], "status": "draft"},
+    {"file": "notion-academy-rules.md", "tags": ["notion", "academy", "moneyguard", "versand", "fristen", "security"], "status": "approved"},
+    {"file": "notion-academy-source-catalog.md", "tags": ["notion", "quellen", "unterseiten", "externe-dokumente"], "status": "approved"},
     {"file": "easy/macro-catalog.md", "tags": ["makro", "routing"], "status": "approved"},
     {"file": "easy/2fa.md", "tags": ["2fa", "reset"], "status": "approved"},
     {"file": "easy/user-details.md", "tags": ["benutzerangaben", "iban"], "status": "approved"},

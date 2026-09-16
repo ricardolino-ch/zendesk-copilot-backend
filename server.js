@@ -41,6 +41,9 @@ const SUPPORTED_ACTIONS = new Set([
 const SYSTEM_PROMPT = fs.readFileSync(path.join(__dirname, "systemprompt.txt"), "utf8").trim();
 const KNOWLEDGE_PACK = fs.readFileSync(path.join(__dirname, "knowledge-pack.md"), "utf8").trim();
 const KNOWLEDGE_ROOT = path.join(__dirname, "knowledge");
+const NOTION_ACADEMY_RULES = fs.existsSync(path.join(KNOWLEDGE_ROOT, "notion-academy-rules.md"))
+  ? fs.readFileSync(path.join(KNOWLEDGE_ROOT, "notion-academy-rules.md"), "utf8").trim()
+  : "";
 function loadMarkdownTree(root) {
   if (!fs.existsSync(root)) return "";
   const files = [];
@@ -266,7 +269,7 @@ async function runPrompt(prompt, query) {
   const relevantKnowledge = loadRelevantKnowledge(query);
   const response = await getOpenAIClient().responses.create({
     model: "gpt-5.6-luna",
-    input: `${SYSTEM_PROMPT}\n\nVERBINDLICHE FREIGEGEBENE WISSENSBASIS:\n${KNOWLEDGE_PACK}\n\nRELEVANTE DETAILQUELLEN AUS DEM VOLLSTÄNDIGEN WISSENSARCHIV:\n${relevantKnowledge || "Keine zusätzliche Detailquelle gefunden."}\n\nZUSÄTZLICHE PROJEKTQUELLEN UND DOKUMENTATION:\n${PROJECT_SOURCES}${examplesBlock}\n\nZusätzliche verbindliche Vorgabe: Schreibe die konkrete Aufgabe vollständig in der vom Auftrag verlangten Zielsprache. Verwende die passenden Detailquellen aktiv. Historische Quellen sind nur Referenzen; bei Widerspruch gilt die freigegebene aktuelle Wissensbasis. Bei fehlender Grundlage keine Regel erfinden.\n\nAUFGABE:\n${prompt}`
+    input: `${SYSTEM_PROMPT}\n\nVERBINDLICHE FREIGEGEBENE WISSENSBASIS:\n${KNOWLEDGE_PACK}\n\nNOTION ACADEMY RICARDO (verbindliche strukturierte Regeln):\n${NOTION_ACADEMY_RULES || "Keine Notion-Quelle importiert."}\n\nRELEVANTE DETAILQUELLEN AUS DEM VOLLSTÄNDIGEN WISSENSARCHIV:\n${relevantKnowledge || "Keine zusätzliche Detailquelle gefunden."}\n\nZUSÄTZLICHE PROJEKTQUELLEN UND DOKUMENTATION:\n${PROJECT_SOURCES}${examplesBlock}\n\nZusätzliche verbindliche Vorgabe: Schreibe die konkrete Aufgabe vollständig in der vom Auftrag verlangten Zielsprache. Verwende die passenden Detailquellen aktiv. Historische Quellen sind nur Referenzen; bei Widerspruch gilt die freigegebene aktuelle Wissensbasis. Bei fehlender Grundlage keine Regel erfinden.\n\nAUFGABE:\n${prompt}`
   });
   return String(response.output_text || "").trim();
 }

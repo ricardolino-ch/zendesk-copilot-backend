@@ -3,6 +3,11 @@
 Dieses Paket enthält nur freigegebene Dokumente aus knowledge/manifest.json.
 Historische und als Entwurf markierte Inhalte sind bewusst nicht enthalten.
 
+## Quelle: knowledge/notion-academy-rules.md
+
+Die strukturierten Regeln aus der Notion Academy Ricardo sind in
+`knowledge/notion-academy-rules.md` enthalten und verbindlich eingebunden.
+
 
 ## Quelle: _common/response-style.md
 
