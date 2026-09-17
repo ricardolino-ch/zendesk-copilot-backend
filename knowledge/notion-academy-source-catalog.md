@@ -25,10 +25,19 @@ Die Unterseiten werden bei der Wissenssuche thematisch über
 `notion-academy-rules.md` und die bestehenden Bereichsdateien berücksichtigt.
 Neue Seiten müssen beim nächsten Wissensimport erneut synchronisiert werden.
 
-## Externe verlinkte Lernquellen
+## Öffentliche Lernquellen
 
-Die Notion-Seite verlinkt unter anderem Easygenerator-Kurse, Miro-Boards,
-Whale-Anleitungen und Wizardshot-Tutorials. Diese Links sind dokumentiert, der
-geschützte Seiteninhalt ist über die Notion-Anbindung nicht vollständig
-auslesbar. Für eine lückenlose Übernahme müssen die Inhalte als PDF/HTML/TXT
-oder über eine freigegebene API bereitgestellt werden.
+Die Easygenerator-Kurse sind öffentlich und können anonym geöffnet werden. Der
+Co-Pilot berücksichtigt die daraus extrahierte Wissensbasis unter
+`knowledge/easygenerator-course-index.md` sowie die Detailquellen unter
+`knowledge/_sources/easygenerator/`. Die öffentlich erreichbaren Kurse umfassen
+unter anderem:
+
+- Administratives, Datenschutz und Kommunikation, Tools, Easy und Blockiert
+- Kaufen / Verkaufen / Stornierung, Käuferschutz+ (MoneyGuard), Bewertungen
+- Bugs, Gebühren und Telefonieren
+- die entsprechenden französischen Module
+
+Miro-, Whale- und Wizardshot-Links sind ebenfalls als interne Prozessquellen
+vermerkt. Wenn eine dieser Seiten nicht öffentlich geladen werden kann, wird
+deren Inhalt nicht erfunden, sondern als offene Quelle gekennzeichnet.
