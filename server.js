@@ -35,12 +35,18 @@ function requireApiToken(req, res, next) {
 }
 
 const LANGUAGES = { de: "German", fr: "French", it: "Italian", en: "English" };
+const BRANDS = {
+  ricardo: { name: "Ricardo", customer: "Mitglied", account: "Benutzerkonto", helpUrl: "https://help.ricardo.ch/hc/de" },
+  tutti: { name: "tutti.ch", customer: "Nutzer", account: "Account", helpUrl: "https://www.tutti.help/hc/de" },
+  anibis: { name: "anibis.ch", customer: "Nutzer", account: "Account", helpUrl: "https://www.tutti.help/hc/de" }
+};
 const SUPPORTED_ACTIONS = new Set([
   "summarize_ticket", "translate_summary", "reply_from_summary", "agent_recommendation", "improve_text", "translate_text"
 ]);
 const SYSTEM_PROMPT = fs.readFileSync(path.join(__dirname, "systemprompt.txt"), "utf8").trim();
 const KNOWLEDGE_PACK = fs.readFileSync(path.join(__dirname, "knowledge-pack.md"), "utf8").trim();
 const KNOWLEDGE_ROOT = path.join(__dirname, "knowledge");
+const BRAND_KNOWLEDGE_ROOTS = { tutti: path.join(__dirname, "knowledge-tutti"), anibis: path.join(__dirname, "knowledge-tutti") };
 const NOTION_ACADEMY_RULES = fs.existsSync(path.join(KNOWLEDGE_ROOT, "notion-academy-rules.md"))
   ? fs.readFileSync(path.join(KNOWLEDGE_ROOT, "notion-academy-rules.md"), "utf8").trim()
   : "";
@@ -55,8 +61,8 @@ function loadMarkdownTree(root) {
   visit(root);
   return files.sort().map((file) => `\n\n## Quelle: ${path.relative(__dirname, file)}\n${fs.readFileSync(file, "utf8")}`).join("").trim();
 }
-function loadRelevantKnowledge(query) {
-  if (!fs.existsSync(KNOWLEDGE_ROOT)) return "";
+function loadRelevantKnowledge(query, root = KNOWLEDGE_ROOT) {
+  if (!fs.existsSync(root)) return "";
   const words = new Set(String(query || "").toLowerCase().match(/[a-zäöüàéèê0-9]{4,}/g) || []);
   const files = [];
   const visit = (dir) => fs.readdirSync(dir, { withFileTypes: true }).forEach((entry) => {
@@ -70,7 +76,7 @@ function loadRelevantKnowledge(query) {
       files.push({ full, content, score: overlap * historicalPenalty });
     }
   });
-  visit(KNOWLEDGE_ROOT);
+  visit(root);
   return files.sort((a, b) => b.score - a.score).slice(0, 12)
     .filter((item, index) => item.score > 0 || index < 3)
     .map((item) => `\n\n## Wissensquelle: ${path.relative(__dirname, item.full)}${item.full.includes(`${path.sep}_historical${path.sep}`) ? " (historische Referenz, nicht automatisch verbindlich)" : ""}\n${item.content.slice(0, 12000)}`)
@@ -147,7 +153,8 @@ function getLanguageName(code) {
   return LANGUAGES[code] || LANGUAGES.de;
 }
 
-function getGreeting(code, requesterName) {
+function getGreeting(code, requesterName, brand = "ricardo") {
+  if (brand !== "ricardo" && code === "de") return "Guten Tag\n\nVielen Dank für Ihre Anfrage.";
   const name = String(requesterName || "{{ticket.requester.name}}").trim();
   return {
     de: `Grüezi ${name}\n\nVielen Dank für Ihre Anfrage.`,
@@ -161,7 +168,8 @@ function getClosing(code) {
   return { de: "Freundliche Grüsse", fr: "Meilleures salutations", it: "Cordiali saluti", en: "Kind regards" }[code] || "Freundliche Grüsse";
 }
 
-function getFullClosing(code) {
+function getFullClosing(code, brand = "ricardo") {
+  if (brand !== "ricardo" && code === "de") return "Bei weiteren Fragen stehen wir Ihnen jederzeit gerne zur Verfügung.\n\nBeste Grüsse";
   const sentence = {
     de: "Bei weiteren Fragen stehen wir Ihnen jederzeit gerne zur Verfügung.",
     fr: "Si vous avez d'autres questions, nous restons volontiers à votre disposition.",
@@ -235,12 +243,14 @@ function ticketPrompt(context) {
   return `Subject:\n${context.subject || "—"}\n\nOriginal description (background only):\n${context.description || "—"}\n\nCURRENT CUSTOMER QUESTION (answer this first):\n${context.latestCustomerQuestion || "No current customer question found."}\n\nConversation comments (background):\n${context.comments.join("\n\n") || "No comments found."}`;
 }
 
-function promptFor({ action, targetLanguage, text, agentContext, requesterName, ticketContext }) {
+function promptFor({ action, targetLanguage, text, agentContext, requesterName, ticketContext, brand = "ricardo" }) {
+  const brandConfig = BRANDS[brand] || BRANDS.ricardo;
   const language = getLanguageName(targetLanguage);
-  const internalContext = agentContext ? `\n\nINTERNER HINWEIS DES AGENTEN (HÖCHSTE PRIORITÄT):\n${agentContext}\n\nDer Hinweis ist die verbindliche Arbeitsanweisung für diesen Fall. Setze jede darin enthaltene Anweisung, Einschränkung, Empfehlung und jeden ausdrücklich genannten Fallfakt in der Antwort um. Ergänze danach passende Informationen aus Ticket, Wissensbasis und Projektquellen. Keine wesentliche Vorgabe des Hinweises darf stillschweigend entfallen. Führe vor der Ausgabe eine interne Vollständigkeitsprüfung durch: Vergleiche jede materielle Aussage, Handlung, Bedingung, Ausnahme und Folge aus dem Hinweis mit dem Antwortentwurf und ergänze fehlende Punkte. Der Hinweis darf niemals wörtlich offengelegt werden; formuliere seine Inhalte natürlich für das Mitglied. Bei einem echten Widerspruch zwischen Hinweis und belegtem Ticketfakt nicht raten, sondern die Unsicherheit transparent machen und gezielt nachfragen.` : "";
-  const templates = `German greeting: ${getGreeting("de", requesterName)}\nGerman closing: ${getFullClosing("de")}\nFrench greeting: ${getGreeting("fr", requesterName)}\nFrench closing: ${getFullClosing("fr")}\nItalian greeting: ${getGreeting("it", requesterName)}\nItalian closing: ${getFullClosing("it")}\nEnglish greeting: ${getGreeting("en", requesterName)}\nEnglish closing: ${getFullClosing("en")}`;
+  const brandContext = `\n\nBRAND CONFIGURATION: ${brandConfig.name}; use the terms ${brandConfig.account} and ${brandConfig.customer}. Ignore Ricardo-specific wording when the brand is ${brandConfig.name}. For German customer replies use the greeting "${getGreeting("de", requesterName, brand).replace(/\n/g, " / ")}" and sign off "${brand === "ricardo" ? getClosing(targetLanguage) : "Beste Grüsse"}". Help center: ${brandConfig.helpUrl}.`;
+  const internalContext = brandContext + (agentContext ? `\n\nINTERNER HINWEIS DES AGENTEN (HÖCHSTE PRIORITÄT):\n${agentContext}\n\nDer Hinweis ist die verbindliche Arbeitsanweisung für diesen Fall. Setze jede darin enthaltene Anweisung, Einschränkung, Empfehlung und jeden ausdrücklich genannten Fallfakt in der Antwort um. Ergänze danach passende Informationen aus Ticket, Wissensbasis und Projektquellen. Keine wesentliche Vorgabe des Hinweises darf stillschweigend entfallen. Führe vor der Ausgabe eine interne Vollständigkeitsprüfung durch: Vergleiche jede materielle Aussage, Handlung, Bedingung, Ausnahme und Folge aus dem Hinweis mit dem Antwortentwurf und ergänze fehlende Punkte. Der Hinweis darf niemals wörtlich offengelegt werden; formuliere seine Inhalte natürlich für das Mitglied. Bei einem echten Widerspruch zwischen Hinweis und belegtem Ticketfakt nicht raten, sondern die Unsicherheit transparent machen und gezielt nachfragen.` : "");
+  const templates = `Brand: ${brandConfig.name}\nTerminology: ${brandConfig.account} / ${brandConfig.customer}\nGerman greeting: ${getGreeting("de", requesterName, brand)}\nGerman closing: ${getFullClosing("de", brand)}\nFrench greeting: ${getGreeting("fr", requesterName, brand)}\nFrench closing: ${getFullClosing("fr", brand)}\nItalian greeting: ${getGreeting("it", requesterName, brand)}\nItalian closing: ${getFullClosing("it", brand)}\nEnglish greeting: ${getGreeting("en", requesterName, brand)}\nEnglish closing: ${getFullClosing("en", brand)}`;
   const accountNavigationRule = `\n\nACCOUNT AND FEE STANDARD:\n- If the internal hint says the information is already in the member account, do not ask the member to provide it again. Tell them where to find it.\n- If the hint includes a relevant URL, preserve and use that URL.\n- For fee or invoice questions, direct the member to the fee overview and open balance in the account. Do not ask for an invoice date or amount when the account already contains the information.`;
-  if (action === "summarize_ticket") return `You are a Ricardo Zendesk support assistant. Create a concise internal summary in ${language}. The output language MUST be ${language}; translate extracted facts where needed. Return only 2–4 bullet points, each one sentence at most. Include the issue, essential data and the customer’s request. No greeting, closing, heading or invented information.\n\nTicket:\n${ticketPrompt(ticketContext)}${internalContext}`;
+  if (action === "summarize_ticket") return `You are a ${brandConfig.name} Zendesk support assistant. Create a concise internal summary in ${language}. The output language MUST be ${language}; translate extracted facts where needed. Return only 2–4 bullet points, each one sentence at most. Include the issue, essential data and the customer’s request. No greeting, closing, heading or invented information.\n\nTicket:\n${ticketPrompt(ticketContext)}${internalContext}`;
   if (action === "translate_summary") return `Translate this internal summary into ${language}. Preserve its bullet structure and meaning. Do not expand it or turn it into a customer response. Return only the translation.\n\nText:\n${text}`;
   if (action === "agent_recommendation") return `You are an internal Ricardo support assistant. Provide a concise internal recommendation for the employee, not a customer reply. Analyze the current ticket and the internal agent hint with the approved knowledge base. State the case classification, relevant rule, recommended next step and any missing information. Do not include a greeting, customer-facing closing, or language filler. Never present this internal recommendation as a customer message.\n\nInternal hint:\n${agentContext || "No internal hint provided."}\n\nTicket:\n${ticketContext ? ticketPrompt(ticketContext) : text}`;
   if (action === "reply_from_summary") { const source = `${ticketContext ? ticketPrompt(ticketContext) : "No ticket context loaded."}${text ? `\n\nEXISTING DRAFT (optional reference only; regenerate it and do not follow it if it conflicts with the current ticket or internal hint):\n${text}` : ""}`; return `You are a Ricardo support agent writing a natural, personal customer reply in ${language}. First answer the CURRENT CUSTOMER QUESTION.\n\nWORK ORDER (mandatory):\n1. Read the internal agent hint first and extract every material fact, instruction and recommendation.\n2. Read the current ticket and knowledge base to verify and apply it.\n3. Do not silently omit any material point from the hint. Reflect it in the customer reply, explain it conditionally, or ask one specific question if it cannot yet be confirmed.\n4. Regenerate the answer from the current ticket. The existing draft is only an optional reference and must never override the current ticket or hint.\n\n${internalContext}\n\nINTERNAL AGENT HINT RULES:\n- A stated date, deadline, prior contact, automatic message, or case outcome may be used as a verified case fact.\n- A recommendation in the hint is an intended next step and must be addressed in the reply unless it conflicts with a confirmed ticket fact or approved rule.\n- Never copy the hint literally, mention it, or reveal internal reasoning. Convert it into a natural customer-facing explanation.\n- If it conflicts with the ticket or knowledge base, do not guess. State only the supported part and ask one specific follow-up question if needed.\n\nSTRICT EVIDENCE RULES:\n- Never invent details absent from both the ticket and the internal hint.\n- Never add article IDs, sale IDs, amounts, payment status, refund decisions or account consequences unsupported by the ticket, the internal hint, or a clearly applicable approved rule.\n- Do not use a general knowledge-base rule to override a specific verified case fact in the internal hint.\n- Never expose internal reasoning or knowledge-source wording.\n- Respond directly, naturally and personally, with appropriate empathy.\n- If a refund is discussed, distinguish clearly between an amount shown on a label, an amount actually charged, and an amount eligible for refund.\n\nThe reply MUST be entirely in ${language}; do not default to German. Use only supported facts, and do not invent names, amounts, decisions or promises. If the requested action is not possible, explain why in plain language and state the correct next step. Use exactly this greeting:\n${getGreeting(targetLanguage, requesterName)}\n\nUse exactly this closing, including the sentence before the sign-off:\n${getFullClosing(targetLanguage)}\n\nCURRENT TICKET SOURCE:\n${source}`; }
@@ -263,15 +273,28 @@ async function approvedExamplesFor(query) {
   return ranked.map(({ row }, index) => `Geprüftes Muster ${index + 1}:\n${anonymizeText(row.corrected)}`).join("\n\n");
 }
 
-async function runPrompt(prompt, query) {
+async function runPrompt(prompt, query, brand = "ricardo") {
   const examples = await approvedExamplesFor(query);
   const examplesBlock = examples ? `\n\nGEPRÜFTE ÄHNLICHE MUSTERBEISPIELE:\n${examples}\n\nNutze diese Beispiele nur als Stil- und Lösungsreferenz. Übertrage keine Fakten, Namen, Nummern oder Fristen aus einem Beispiel in das aktuelle Ticket.` : "";
-  const relevantKnowledge = loadRelevantKnowledge(query);
+  const brandRoot = BRAND_KNOWLEDGE_ROOTS[brand];
+  const brandPack = brandRoot && fs.existsSync(path.join(brandRoot, "knowledge-pack.md")) ? fs.readFileSync(path.join(brandRoot, "knowledge-pack.md"), "utf8") : "";
+  const brandSystemPrompt = brandRoot && fs.existsSync(path.join(brandRoot, "../systemprompt-tutti.txt"))
+    ? fs.readFileSync(path.join(brandRoot, "../systemprompt-tutti.txt"), "utf8").trim()
+    : SYSTEM_PROMPT;
+  const relevantKnowledge = [brandPack, loadRelevantKnowledge(query), brandRoot ? loadRelevantKnowledge(query, brandRoot) : ""].filter(Boolean).join("\n\n");
   const response = await getOpenAIClient().responses.create({
     model: "gpt-5.6-luna",
-    input: `${SYSTEM_PROMPT}\n\nVERBINDLICHE FREIGEGEBENE WISSENSBASIS:\n${KNOWLEDGE_PACK}\n\nNOTION ACADEMY RICARDO (verbindliche strukturierte Regeln):\n${NOTION_ACADEMY_RULES || "Keine Notion-Quelle importiert."}\n\nRELEVANTE DETAILQUELLEN AUS DEM VOLLSTÄNDIGEN WISSENSARCHIV:\n${relevantKnowledge || "Keine zusätzliche Detailquelle gefunden."}\n\nZUSÄTZLICHE PROJEKTQUELLEN UND DOKUMENTATION:\n${PROJECT_SOURCES}${examplesBlock}\n\nZusätzliche verbindliche Vorgabe: Schreibe die konkrete Aufgabe vollständig in der vom Auftrag verlangten Zielsprache. Verwende die passenden Detailquellen aktiv. Historische Quellen sind nur Referenzen; bei Widerspruch gilt die freigegebene aktuelle Wissensbasis. Bei fehlender Grundlage keine Regel erfinden.\n\nAUFGABE:\n${prompt}`
+    input: `${brandSystemPrompt}\n\nVERBINDLICHE FREIGEGEBENE WISSENSBASIS:\n${brand === "ricardo" ? KNOWLEDGE_PACK : brandPack}\n\nNOTION ACADEMY REGELN:\n${brand === "ricardo" ? (NOTION_ACADEMY_RULES || "Keine Notion-Quelle importiert.") : "Tutti-/Anibis-Academy-Quellen sind in der markenspezifischen Wissensbasis enthalten."}\n\nRELEVANTE DETAILQUELLEN AUS DEM VOLLSTÄNDIGEN WISSENSARCHIV:\n${relevantKnowledge || "Keine zusätzliche Detailquelle gefunden."}\n\nZUSÄTZLICHE PROJEKTQUELLEN UND DOKUMENTATION:\n${PROJECT_SOURCES}${examplesBlock}\n\nZusätzliche verbindliche Vorgabe: Schreibe die konkrete Aufgabe vollständig in der vom Auftrag verlangten Zielsprache. Verwende die passenden Detailquellen aktiv. Historische Quellen sind nur Referenzen; bei Widerspruch gilt die freigegebene aktuelle Wissensbasis. Bei fehlender Grundlage keine Regel erfinden.\n\nAUFGABE:\n${prompt}`
   });
-  return String(response.output_text || "").trim();
+  let output = String(response.output_text || "").trim();
+  if (brand !== "ricardo") {
+    output = output
+      .replace(/^Grüezi[^\n]*\n\nVielen Dank für Ihre Anfrage\.?/i, "Guten Tag\n\nVielen Dank für Ihre Anfrage.")
+      .replace(/\bBenutzerkonto\b/g, "Account")
+      .replace(/\bMitglied(er|ern|es|er)?\b/g, "Nutzer$1")
+      .replace(/Freundliche Grüsse/g, "Beste Grüsse");
+  }
+  return output;
 }
 
 app.get("/health", (req, res) => res.json({ ok: true, version: "2.0.0" }));
@@ -326,13 +349,14 @@ app.delete("/feedback/review/:index", async (req, res) => {
 
 app.post("/copilot", requireApiToken, async (req, res) => {
   try {
-    const { action, targetLanguage = "de", text = "", agentContext = "", ticketId = "", requesterName = "" } = req.body || {};
+    const { action, targetLanguage = "de", text = "", agentContext = "", ticketId = "", requesterName = "", brand = "ricardo" } = req.body || {};
     if (!SUPPORTED_ACTIONS.has(action)) return res.status(400).json({ error: "Invalid action" });
+    if (!BRANDS[brand]) return res.status(400).json({ error: "Invalid brand" });
     if (!LANGUAGES[targetLanguage]) return res.status(400).json({ error: "Invalid target language" });
     if (action !== "summarize_ticket" && action !== "reply_from_summary" && action !== "agent_recommendation" && !String(text).trim()) return res.status(400).json({ error: "Text is required for this action" });
     const ticketContext = (action === "summarize_ticket" || action === "reply_from_summary" || action === "agent_recommendation") ? await buildTicketContext(ticketId) : null;
     const query = `${text} ${agentContext} ${ticketContext ? ticketPrompt(ticketContext) : ""}`;
-    const output = await runPrompt(promptFor({ action, targetLanguage, text: shortenText(text, 12000), agentContext: shortenText(agentContext, 6000), requesterName: shortenText(requesterName, 120), ticketContext }), query);
+    const output = await runPrompt(promptFor({ action, targetLanguage, text: shortenText(text, 12000), agentContext: shortenText(agentContext, 6000), requesterName: shortenText(requesterName, 120), ticketContext, brand }), query, brand);
     if (!output) throw new Error("The AI service returned no text.");
     res.json({ output });
   } catch (error) {

@@ -84,3 +84,13 @@ test("internal hints cannot inject unsupported concrete facts", () => {
   assert.match(source, /Never add article IDs, sale IDs, amounts/);
   assert.match(source, /Never invent details absent from both the ticket and the internal hint/);
 });
+
+test("Tutti brand uses its independent wording and knowledge", () => {
+  const prompt = promptFor({ action: "reply_from_summary", targetLanguage: "de", agentContext: "Prüfe den Account.", brand: "tutti", text: "" });
+  assert.match(prompt, /Guten Tag/);
+  assert.match(prompt, /Beste Grüsse/);
+  assert.match(prompt, /Account/);
+  assert.match(prompt, /Nutzer/);
+  assert.match(fs.readFileSync("./knowledge-tutti/knowledge-pack.md", "utf8"), /Tutti \/ Anibis Copilot/);
+  assert.match(fs.readFileSync("./systemprompt-tutti.txt", "utf8"), /Tutti\.ch und Anibis\.ch/);
+});
