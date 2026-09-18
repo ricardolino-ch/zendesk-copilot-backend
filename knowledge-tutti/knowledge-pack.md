@@ -70,3 +70,7 @@
 - Tutti-Hilfe: https://www.tutti.help/hc/de
 - Kategorien: Account, Kaufen und Verkaufen, Gebühren, Sicherheitshinweise sowie Über tutti.ch/News.
 - Die Hilfeartikel sind die bevorzugte Quelle für aktuelle Abläufe und Links.
+
+## Abschluss bei Rückfragen
+
+Wenn eine Rückmeldung, ein Screenshot, ein Dokument oder eine konkrete Angabe angefordert wird, ergänze vor „Beste Grüsse“ passend: „Vielen Dank im Voraus für Ihre Rückmeldung.“ Vermeide doppelte Dankesformeln.
