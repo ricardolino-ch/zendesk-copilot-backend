@@ -172,6 +172,9 @@ historischen Tickets oder früheren Entwürfen.
 
 ## Gebühren und Mehrwertsteuer
 
+- Bereits ausgestellte Rechnungen können nachträglich nicht geändert werden und sind vollständig zu begleichen. Eine danach gewährte Gutschrift wird im nächsten Abrechnungszyklus zurückerstattet; sie reduziert die ausgestellte Rechnung nicht rückwirkend. Eine konkrete Gutschrift nur bestätigen, wenn sie im Fallkontext belegt ist.
+- Rabatte werden aktuell nicht separat ausgewiesen; der angezeigte Gebührenbetrag berücksichtigt den Rabatt bereits.
+
 - Für Fristen und Kontostatus ist immer die älteste offene Gebühr entscheidend.
 - Seit 01.10.2026 gilt das neue Rechnungssystem. Für Rechnungen gelten die
   neuen, vom Rechnungsdatum ausgehenden Fristen in `fees/new-invoicing-system.md`;

@@ -57,6 +57,22 @@ Bei Übergabe kann der Inkasso-Partner zusätzliche Gebühren verlangen. Ricardo
 - Nach Erstellung und nach Auszahlung erfolgen separate E-Mail-Benachrichtigungen.
 - Bei fehlender IBAN: im Benutzerkonto unter „Zahlungen“ → „Banküberweisung“ hinterlegen.
 
+### Rechnung bereits ausgestellt: nachträgliche Gutschrift
+
+- Sobald eine Rechnung ausgestellt wurde, kann sie nachträglich nicht mehr geändert werden.
+- Eine nach Ausstellung gewährte Gutschrift ändert den Rechnungsbetrag nicht rückwirkend. Sie wird im nächsten Abrechnungszyklus zurückerstattet.
+- Die bereits ausgestellte ursprüngliche Rechnung ist trotzdem vollständig und fristgerecht zu bezahlen. Eine spätere Gutschrift ist kein Grund, den Rechnungsbetrag eigenmächtig zu kürzen oder die Zahlung zurückzuhalten.
+- Eine konkrete Gutschrift oder deren Höhe nur bestätigen, wenn sie im Ticket, in der Gebührenübersicht oder durch einen internen Hinweis ausdrücklich bestätigt ist.
+- Erkläre diese Abfolge klar, wenn Mitglieder fragen, weshalb die Rechnung trotz Gutschrift unverändert oder noch offen ist.
+
+### Rabattanzeige
+
+- Rabatte werden aktuell nicht als separate Position ausgewiesen.
+- Der angezeigte Gebührenbetrag ist bereits um den Rabatt reduziert. Deshalb ist eine fehlende separate Rabattzeile für sich allein kein Hinweis auf eine falsche Verrechnung.
+- Behaupte keine konkrete Rabattart oder Rabattshöhe, wenn diese nicht im Fallkontext bzw. in der Gebührenübersicht ersichtlich ist.
+
+Mögliche Formulierung: „Die Rechnung wurde bereits erstellt und kann nachträglich nicht mehr angepasst werden. Bitte begleichen Sie den ausgewiesenen Betrag vollständig. Eine danach gewährte Gutschrift wird im nächsten Abrechnungszyklus zurückerstattet.“ Nur verwenden, wenn die Gutschrift tatsächlich gewährt wurde.
+
 ## Sperre und Kulanz bei Mahngebühr
 
 - Bei gesperrtem Account ist Login weiterhin möglich; zugänglich bleibt „Meine Gebühren“ zum Bezahlen überfälliger Rechnungen.
@@ -71,6 +87,8 @@ Bei Übergabe kann der Inkasso-Partner zusätzliche Gebühren verlangen. Ricardo
 - Ermittle, ob der Account privat oder gewerblich ist und ob die Rechnung aus dem neuen System stammt. Wenn das unklar ist, nicht raten; nach Rechnungsdatum/Rechnung oder Screenshot fragen.
 - Beziehe konkrete Fälligkeit, offenen Betrag, Zahlungsstatus, Kulanzfähigkeit und Inkassostatus nur aus der betreffenden Rechnung, dem Zendesk-Ticket oder einem ausdrücklich bestätigten internen Hinweis. Die öffentlichen Regeln allein belegen nicht den individuellen Fallstatus.
 - Bei mehreren Rechnungen erkläre, dass jede Rechnung separat bezahlt wird. Nutze die älteste offene Rechnung zur Einordnung des frühesten Frist-/Sperrstatus nur, wenn diese Information im Fallkontext oder der Gebührenübersicht bestätigt ist.
+- Bei einer nach Rechnungsstellung gewährten Gutschrift immer unterscheiden: Die Rechnung bleibt unverändert und vollständig zahlbar; die bestätigte Gutschrift wird im nächsten Abrechnungszyklus zurückerstattet.
+- Erkläre bei Rabattfragen, dass Rabatte derzeit nicht separat aufgelistet werden und der angezeigte Gebührenbetrag den Rabatt bereits berücksichtigt.
 - Verlinke nach Möglichkeit den passenden Hilfeartikel statt viele Prozessdetails ohne Bezug aufzuzählen.
 
 ## Offizielle Quellen

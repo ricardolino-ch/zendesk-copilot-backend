@@ -30,6 +30,13 @@
 - Mehrere offene Rechnungen werden separat bezahlt. Individuellen Fälligkeits-, Sperr- oder Inkassostatus nicht aus allgemeinen Fristen ableiten; Rechnung/Account-Kontext prüfen.
 - Die bisherige Fristenkette 14/30/44/58/72 Tage gehört zum früheren Gebührenprozess und darf nicht auf Rechnungen des neuen Systems angewendet werden.
 
+## Bereits ausgestellte Rechnungen, Gutschriften und Rabatte
+
+- Eine ausgestellte Rechnung kann nachträglich nicht geändert werden und muss vollständig beglichen werden.
+- Wird danach eine Gutschrift gewährt, wird sie im nächsten Abrechnungszyklus zurückerstattet; sie reduziert die ausgestellte Rechnung nicht rückwirkend. Eine konkrete Gutschrift nur nennen, wenn sie bestätigt ist.
+- Rabatte werden derzeit nicht separat ausgewiesen. Der angezeigte Gebührenbetrag ist bereits um den Rabatt reduziert.
+- Details zum Rechnungszyklus und zur Auszahlung stehen in `new-invoicing-system.md`.
+
 ## Zahlungen und Rückzahlungen
 
 - Kreditkartenzahlungen werden sofort, E-Banking-Zahlungen innerhalb von zwei
