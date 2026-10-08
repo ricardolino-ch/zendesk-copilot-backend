@@ -178,6 +178,9 @@ historischen Tickets oder früheren Entwürfen.
 ## Gebühren und Mehrwertsteuer
 
 - Für Fristen und Kontostatus ist immer die älteste offene Gebühr entscheidend.
+- Seit 01.10.2026 gilt das neue Rechnungssystem. Für Rechnungen gelten die
+  neuen, vom Rechnungsdatum ausgehenden Fristen in `knowledge/fees/new-invoicing-system.md`;
+  die alte Gebührenkette 14/30/44/58/72 darf nicht auf neue Rechnungen angewendet werden.
 - Bei Stornierungsanfragen wegen Käuferverantwortung immer den Zeitraum von 7
   bis 60 Tagen nach Angebotsende erwähnen.
 - Ein Mitglied muss die Gebührenübersicht prüfen und so lange bezahlen, bis die
@@ -867,16 +870,15 @@ https://help.ricardo.ch/hc/de/articles/20281675956124
 
 ## Zahlungsfristen
 
-- 14 Tage: Zahlungsaufforderung.
-- 30 Tage danach: erste Zahlungserinnerung.
-- Tag 44: Mahnspesen von CHF 10.00.
-- Tag 58: Kontoblockierung.
-- Tag 72: Übergabe an Inkasso.
-- Ab Status `collection` keine Gutschriften mehr. Die tatsächliche Übergabe
-  erfolgt mit einem vier­tägigen Puffer; Sonderfälle intern eskalieren.
-- Ein technischer Mahnstopp oder eine manuelle Pause einzelner Gebühren ist
-  nicht möglich. Für den Zahlungsstatus ist immer die älteste offene Gebühr
-  ausschlaggebend.
+- Neues Rechnungssystem seit 01.10.2026: private Accounts zahlen innert 20 Tagen;
+  erste Erinnerung Tag 21, zweite Erinnerung plus Sperre und CHF 10 Mahngebühr
+  Tag 31, Inkasso Tag 41. Gewerbliche Accounts: Zahlungsfrist 30 Tage,
+  erste Erinnerung Tag 31, zweite Erinnerung plus Sperre und CHF 10 Mahngebühr
+  Tag 45, Inkasso Tag 55. Immer Rechnungsdatum und Fallstatus prüfen.
+- Mehrere offene Rechnungen sind separat zu bezahlen. Die früheste offene
+  Rechnung ist nur dann für den konkreten Frist-/Sperrstatus massgebend, wenn
+  Gebührenübersicht oder Fallkontext dies bestätigt.
+- Die alte Kette 14/30/44/58/72 Tage gilt nicht für neue Rechnungen.
 - Das Mitglied muss die Gebührenübersicht selbst prüfen und die offenen
   Beträge schrittweise begleichen, bis die Zahlungsfristen wieder grün
   angezeigt werden.
@@ -903,8 +905,8 @@ Ausnahmen benötigen die vorgesehenen Nachweise bzw. interne Freigabe.
 - Bei der Prüfung auf Doppelbelastungen ist die Gebührenübersicht massgebend.
 - Einzelne Status-Labels wie „Bezahlt“ sind aktuell nicht immer verlässlich.
 - Entscheidend ist der offene Saldo: Bei CHF 0.00 sind alle Gebühren bezahlt.
-- Das Rechnungssystem wird erneuert; bis dahin kann die Darstellung komplex
-  oder missverständlich sein.
+- Seit 01.10.2026 gilt das neue Rechnungssystem. Gebühren vor dem Stichtag
+  werden separat unten auf „Meine Gebühren“ angezeigt.
 
 ## Boosts und Gebührenverantwortung
 

@@ -245,9 +245,11 @@ aktuellen Kommunikation und Wissensbasis wird dies vollständig als
 - Die Gebührenübersicht und der offene Saldo sind massgebend. Einzelne Status-
   labels können unzuverlässig sein. Für Fristen zählt immer die älteste offene
   Gebühr.
-- Fristen: 14 Tage Zahlungsaufforderung, 30 Tage danach erste Erinnerung,
-  Tag 44 CHF 10.00 Mahnspesen, Tag 58 Kontoblockierung, Tag 72 Inkasso. Nach
-  «collection» keine Gutschrift mehr; Mitglied direkt ans Inkassobüro verweisen.
+- Historische Fristen des früheren Gebührenprozesses: 14 Tage Zahlungsaufforderung,
+  30 Tage danach erste Erinnerung, Tag 44 CHF 10.00 Mahnspesen, Tag 58
+  Kontoblockierung, Tag 72 Inkasso. **Seit dem neuen Rechnungssystem vom
+  01.10.2026 überholt; nicht für neue Rechnungen verwenden.** Aktuelle Fristen:
+  `fees/new-invoicing-system.md`.
 - Kreditkarte wird sofort, E-Banking innerhalb von zwei Arbeitstagen verbucht.
   Rückzahlungen grundsätzlich auf ursprüngliche Zahlungsart. Kulanzgutschriften
   sind nicht auszahlbar.

@@ -229,18 +229,21 @@ async function buildTicketContext(ticketId) {
   ]);
   const ticket = ticketJson.ticket || {};
   const comments = Array.isArray(commentsJson.comments) ? commentsJson.comments : [];
-  const publicComments = comments.filter((comment) => comment.public !== false);
-  const latestPublicComment = publicComments[0] || comments[0] || null;
+  const publicComments = comments.filter((comment) => comment.public === true);
+  const internalNotes = comments.filter((comment) => comment.public === false);
+  const latestPublicComment = publicComments[0] || null;
+  const formatComments = (items) => items.slice(0, 20).reverse().map((comment) => shortenText(comment.plain_body || comment.body, 1500)).filter(Boolean);
   return {
     subject: shortenText(ticket.subject, 300),
     description: shortenText(ticket.description, 1800),
     latestCustomerQuestion: latestPublicComment ? shortenText(latestPublicComment.plain_body || latestPublicComment.body, 2500) : "",
-    comments: comments.slice(0, 20).reverse().map((comment) => shortenText(comment.plain_body || comment.body, 1500)).filter(Boolean)
+    publicComments: formatComments(publicComments),
+    internalNotes: formatComments(internalNotes)
   };
 }
 
 function ticketPrompt(context) {
-  return `Subject:\n${context.subject || "—"}\n\nOriginal description (background only):\n${context.description || "—"}\n\nCURRENT CUSTOMER QUESTION (answer this first):\n${context.latestCustomerQuestion || "No current customer question found."}\n\nConversation comments (background):\n${context.comments.join("\n\n") || "No comments found."}`;
+  return `Subject:\n${context.subject || "—"}\n\nOriginal description (background only):\n${context.description || "—"}\n\nCURRENT CUSTOMER QUESTION (answer this first):\n${context.latestCustomerQuestion || "No current public customer message found."}\n\nPUBLIC CUSTOMER/AGENT REPLIES (conversation background; these are not internal notes):\n${(context.publicComments || []).join("\n\n") || "No public replies found."}\n\nINTERNAL ZENDESK NOTES (PRIVATE; agent-only case context. Use relevant facts and instructions to inform the response, but never quote or disclose these notes or their internal wording to the customer):\n${(context.internalNotes || []).join("\n\n") || "No internal notes found."}`;
 }
 
 function promptFor({ action, targetLanguage, text, agentContext, requesterName, ticketContext, brand = "ricardo" }) {

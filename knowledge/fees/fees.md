@@ -24,19 +24,11 @@
 
 ## Zahlungsfristen
 
-- 14 Tage: Zahlungsaufforderung.
-- 30 Tage danach: erste Zahlungserinnerung.
-- Tag 44: Mahnspesen von CHF 10.00.
-- Tag 58: Kontoblockierung.
-- Tag 72: Übergabe an Inkasso.
-- Ab Status `collection` keine Gutschriften mehr. Die tatsächliche Übergabe
-  erfolgt mit einem vier­tägigen Puffer; Sonderfälle intern eskalieren.
-- Ein technischer Mahnstopp oder eine manuelle Pause einzelner Gebühren ist
-  nicht möglich. Für den Zahlungsstatus ist immer die älteste offene Gebühr
-  ausschlaggebend.
-- Das Mitglied muss die Gebührenübersicht selbst prüfen und die offenen
-  Beträge schrittweise begleichen, bis die Zahlungsfristen wieder grün
-  angezeigt werden.
+- **Aktuelles Rechnungssystem seit 01.10.2026:** Fristen ab Rechnungsdatum; die konkrete Fälligkeit auf der Rechnung bzw. unter „Meine Gebühren“ ist massgebend. Details und Sonderfälle siehe `new-invoicing-system.md`.
+- Private Accounts: 20 Tage Zahlungsfrist; erste Erinnerung an Tag 21; zweite Erinnerung, Sperre und CHF 10 Mahngebühr an Tag 31; Inkassoübergabe an Tag 41.
+- Gewerbliche Accounts: 30 Tage Zahlungsfrist; erste Erinnerung an Tag 31; zweite Erinnerung, Sperre und CHF 10 Mahngebühr an Tag 45; Inkassoübergabe an Tag 55.
+- Mehrere offene Rechnungen werden separat bezahlt. Individuellen Fälligkeits-, Sperr- oder Inkassostatus nicht aus allgemeinen Fristen ableiten; Rechnung/Account-Kontext prüfen.
+- Die bisherige Fristenkette 14/30/44/58/72 Tage gehört zum früheren Gebührenprozess und darf nicht auf Rechnungen des neuen Systems angewendet werden.
 
 ## Zahlungen und Rückzahlungen
 
@@ -60,8 +52,9 @@ Ausnahmen benötigen die vorgesehenen Nachweise bzw. interne Freigabe.
 - Bei der Prüfung auf Doppelbelastungen ist die Gebührenübersicht massgebend.
 - Einzelne Status-Labels wie „Bezahlt“ sind aktuell nicht immer verlässlich.
 - Entscheidend ist der offene Saldo: Bei CHF 0.00 sind alle Gebühren bezahlt.
-- Das Rechnungssystem wird erneuert; bis dahin kann die Darstellung komplex
-  oder missverständlich sein.
+- Seit 01.10.2026 gilt ein neues Rechnungssystem. Gebühren aus der Zeit davor
+  sind separat am Ende von „Meine Gebühren“ aufgeführt; Details stehen in
+  `new-invoicing-system.md`.
 
 ## Boosts und Gebührenverantwortung
 
